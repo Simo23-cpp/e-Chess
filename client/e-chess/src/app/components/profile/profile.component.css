@@ -1,0 +1,45 @@
+.profile-flex {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+}
+
+.card {
+    border-color: gray;
+    background-color: #312e2b;
+    color: whitesmoke;
+}
+
+.btn-danger {
+    border-color: gray;
+    margin-top: 10px;
+}
+
+.btn-primary {
+    border-color: gray;
+    margin-top: 10px;
+    background-color: green;
+}
+
+.btn-primary:hover {
+    background-color: darkgreen;
+}
+
+
+.profile-f {
+
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    margin: 0px;
+}
+
+.profile-f button {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.user,
+.score {
+    font-size: 20px;
+}
