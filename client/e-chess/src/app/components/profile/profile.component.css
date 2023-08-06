@@ -6,11 +6,13 @@
     align-items: center;
 }
 
+
 .card {
     border-color: gray;
     background-color: #312e2b;
     color: whitesmoke;
 }
+
 
 .btn-danger {
     border-color: gray;
@@ -21,6 +23,10 @@
     border-color: gray;
     margin-top: 10px;
     background-color: green;
+}
+
+.btn-outline-light {
+    border-color: gray;
 }
 
 .btn-primary:hover {
@@ -48,6 +54,11 @@
     font-size: 20px;
 }
 
+.selected {
+    background-color: #f8f9fa;
+    color: black;
+}
+
 [class*="col-"] {
     width: 90%;
 }
@@ -56,14 +67,23 @@
     width: 80%;
 }
 
+[class*="colll-"] {
+    width: 100%;
+}
+
 @media(min-width:500px) {
     [class*="col-"] {
         width: 70%;
     }
 
     [class*="coll-"] {
-        width: 50%;
+        width: 49%;
     }
+
+    [class*="colll-"] {
+        width: 100%;
+    }
+
 }
 
 @media(min-width: 850px) {

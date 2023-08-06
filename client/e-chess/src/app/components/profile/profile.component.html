@@ -1,4 +1,8 @@
 <div class="profile-f">
+    <div *ngIf="showAlert" class="alert alert-danger col-8 colll-" style="text-align: center;" role="alert">
+        Selected a time!
+        <button type="button" class="btn-close" aria-label="Close" (click)="showAlert=false"></button>
+    </div>
     <div class="card col-6">
         <div class="card-body">
             <div class="profile-flex">
@@ -14,6 +18,34 @@
         </div>
     </div>
 </div>
+
+<div class="profile-f mt-2">
+    <div class="card col-6" style="border: none;">
+        <div class="card-body">
+            <div class="profile-flex">
+                <div class="time-1 col-3 coll-" style="padding-top: 5px;">
+                    <button [ngClass]="timeGame==5?'selected':null" type="button"
+                        class="btn btn-outline-light col-12 colll-" (click)="setTime(5)">5min</button>
+                </div>
+                <div class="time-2 col-3 coll-" style="padding-top: 5px;">
+                    <button [ngClass]="timeGame==10?'selected':null" type="button"
+                        class="btn btn-outline-light col-12 colll-" (click)="setTime(10)">10min</button>
+                </div>
+                <div class="time-3 col-3 coll-" style="padding-top: 5px;">
+                    <button [ngClass]="timeGame==30?'selected':null" type="button"
+                        class="btn btn-outline-light col-12 colll-" (click)="setTime(30)">30min</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
 <div class="profile-f" (click)="play()">
     <button type="button" class="btn btn-primary col-3 coll-">Play now
         <i class="bi bi-play-fill"></i>
