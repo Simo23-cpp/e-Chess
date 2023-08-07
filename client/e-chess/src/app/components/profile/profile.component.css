@@ -59,6 +59,14 @@
     color: black;
 }
 
+.color-alert {
+    color: whitesmoke;
+    font-size: 20px;
+    font-style: bold;
+    background-color: #DC3545;
+    border: 2px solid gray;
+}
+
 [class*="col-"] {
     width: 90%;
 }

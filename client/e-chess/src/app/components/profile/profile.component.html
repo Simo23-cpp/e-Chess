@@ -1,7 +1,10 @@
 <div class="profile-f">
-    <div *ngIf="showAlert" class="alert alert-danger col-8 colll-" style="text-align: center;" role="alert">
-        Selected a time!
-        <button type="button" class="btn-close" aria-label="Close" (click)="showAlert=false"></button>
+    <div *ngIf="showAlert" class="alert alert-danger color-alert col-8 colll-" style="text-align: center;" role="alert">
+        Selected a
+        time!
+        <div data-bs-theme="dark" style="float: right;">
+            <button type="button" class="btn-close" aria-label="Close" (click)="showAlert=false"></button>
+        </div>
     </div>
     <div class="card col-6">
         <div class="card-body">
@@ -40,11 +43,6 @@
         </div>
     </div>
 </div>
-
-
-
-
-
 
 <div class="profile-f" (click)="play()">
     <button type="button" class="btn btn-primary col-3 coll-">Play now
