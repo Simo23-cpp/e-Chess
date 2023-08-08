@@ -1,7 +1,7 @@
 <div class="flex-outer">
     <div class="flex-b col-9 colll-">
         <div class="board col-8 colll-">
-            <div class="col-10 nine- player-1"><i class="bi bi-person-fill" style="color: rgb(137, 137, 137);"></i> simo
+            <div class="col-10 nine- player-1"><i class="bi bi-person-fill" style="color: black;"></i> simo
                 <div class="time-1" style="float: right;">5:00</div>
             </div>
             <div class="chess-board">
@@ -22,23 +22,68 @@
             </div>
         </div>
         <div class="flex-lateral col-4 colll-">
-            <div class="moves col-12 nine-">1.&#9817;E4</div>
+            <div class="moves col-12 nine-">1.&#9817;E4 Lorem, ipsum dolor sit amet consectetur adipisicing elit. Quo,
+                dolores non, temporibus possimus iusto dicta neque esse fugit accusantium, at rerum dolorem totam porro
+                voluptatum dolorum sit iure ratione cum.</div>
             <div class="btn-container col-12 nine-">
                 <button type="button" class="btn btn-primary col-5 b-size" (click)="rotateBoard()">Flip
                     <i class="bi bi-arrow-repeat"></i>
                 </button>
-                <button type="button" class="btn btn-danger col-5 b-size">Exit <i
+                <button type="button" class="btn btn-danger col-5 b-size" (click)="exit()">Exit <i
                         class="bi bi-box-arrow-right"></i></button>
             </div>
             <div class="col-12 nine-">
                 <div class="chat col-12 colll-">
                     <div>Simo > ciao</div>
                     <div>Simo > ciao</div>
+                    <div>Lorem ipsum dolor sit amet consectetur adipisicing elit. Excepturi voluptatibus modi, velit
+                        illum sapiente soluta perspiciatis nam. Sapiente officiis veniam beatae tempore aliquam earum
+                        quod, error, accusamus, est quos aliquid.</div>
 
                 </div>
                 <div class="col-12 colll-"><input type="text " class="col-12 colll-" placeholder="Send message"
-                        style="padding-left: 10px;"></div>
+                        style="padding-left: 10px;margin-top: 2px;"></div>
             </div>
         </div>
     </div>
 </div>
+
+<div *ngIf="isLoading" class="loader">
+    <div class="spinner-border  text-success" role="status" style="width: 8rem;height: 8rem;border-width: 10px;">
+    </div>
+    <div class="text-loader">Please wait...</div>
+</div>
+
+<div *ngIf="isFinish" class="my-modal">
+
+    <div class="card col-6 card-s-">
+        <div class="card-header">
+            The black won
+        </div>
+        <div class="c-flex">
+            <div class="m-flex">
+                <div class=" player-1"><i class="bi bi-person-fill" style="color: black;font-size: 30px;"></i>
+                    simo</div>
+                <div class=" player-2"><i class="bi bi-person-fill" style="color: whitesmoke;font-size: 30px;"></i>
+                    fede
+                </div>
+
+            </div>
+            <div class="m-flex">
+                <div> <i class="bi bi-trophy-fill"
+                        style="padding-top: 5px;color: rgb(248, 222, 53);font-size: 20px;"></i>
+                    1000<span class="w-color">+7</span>
+                </div>
+                <div> <i class="bi bi-trophy-fill"
+                        style="padding-top: 5px;color: rgb(248, 222, 53);font-size: 20px;"></i>
+                    1000<span class="l-color">-7</span></div>
+            </div>
+            <div class="m-flex">
+                <button type="button" class="btn btn-primary col-3 c-size" style="margin-top: 20px;margin-bottom: 10px;"
+                    (click)="close()">Close
+                </button>
+            </div>
+        </div>
+
+
+    </div>

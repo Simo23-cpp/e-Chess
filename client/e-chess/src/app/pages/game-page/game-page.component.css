@@ -1,3 +1,99 @@
+/* width */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+    background: gray;
+    border-radius: 10px;
+
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+    background: green;
+    border-radius: 10px;
+
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+
+.loader {
+    position: fixed;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
+    top: 0px;
+    left: 0px;
+    z-index: 1;
+    background-color: black;
+    opacity: 0.8;
+}
+
+.text-loader {
+    margin-top: 20px;
+    font-size: 30px;
+    color: whitesmoke;
+}
+
+.my-modal {
+    position: fixed;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
+    top: 0px;
+    left: 0px;
+    z-index: 1;
+}
+
+.m-flex {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    flex-direction: row;
+    justify-content: space-around;
+}
+
+.c-flex {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.card-header {
+    background-color: green;
+    color: whitesmoke;
+    text-align: center;
+    font-size: 30px;
+}
+
+.card {
+    background-color: #312e2b;
+    color: whitesmoke;
+    border-color: gray;
+}
+
+.w-color {
+    color: green;
+}
+
+.l-color {
+    color: red;
+}
+
 .flex-outer {
     display: flex;
     /* background-color: white;*/
@@ -21,7 +117,8 @@
 .player-1 {
     font-size: 20px;
     font-weight: bold;
-    margin-bottom: 5px;
+    margin-top: 5px;
+    margin-bottom: 4px;
 }
 
 .player-2 {
@@ -80,12 +177,17 @@
 .chat {
     background-color: whitesmoke;
     height: 50px;
-    border-radius: 5px;
+    border-radius: 5px 5px 0px 0px;
     margin-top: 2px;
     border: 1px solid black;
     color: black;
     padding-left: 10px;
     overflow-y: auto;
+}
+
+.chat::-webkit-scrollbar-track {
+    background: whitesmoke;
+    border-radius: 10px;
 }
 
 
@@ -189,6 +291,10 @@
     width: 49%;
 }
 
+[class*="c-size"] {
+    width: 30%;
+}
+
 @media(min-width:400px) {
 
     .chess-board {
@@ -220,6 +326,10 @@
 
     [class*="b-size"] {
         width: 49%;
+    }
+
+    [class*="c-size"] {
+        width: 30%;
     }
 
 
@@ -272,6 +382,10 @@
 
     [class*="b-size"] {
         width: 49%;
+    }
+
+    [class*="c-size"] {
+        width: 30%;
     }
 
     /*
@@ -335,6 +449,9 @@
         width: 49%;
     }
 
+    [class*="c-size"] {
+        width: 30%;
+    }
 
     .chess-board {
         display: flex;
@@ -389,6 +506,14 @@
 
     [class*="b-size"] {
         width: 49%;
+    }
+
+    [class*="c-size"] {
+        width: 30%;
+    }
+
+    [class*="card-s"] {
+        width: 50%;
     }
 }
 
@@ -464,7 +589,7 @@
     .chat {
         background-color: whitesmoke;
         height: 200px;
-        border-radius: 5px;
+        border-radius: 5px 5px 0px 0px;
         margin-top: 2px;
         color: black;
         overflow-y: auto;

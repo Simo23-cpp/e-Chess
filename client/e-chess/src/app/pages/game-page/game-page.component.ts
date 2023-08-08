@@ -1,6 +1,8 @@
 import { Component } from '@angular/core';
+import { Router } from '@angular/router';
 import { ChessPieces, ChessPiecesCodes } from 'src/app/models/chess-pieces';
 import { initialBoardPosition } from 'src/app/models/initial-board-position';
+import { HomePageComponent } from '../home-page/home-page.component';
 
 @Component({
   selector: 'app-game-page',
@@ -15,6 +17,10 @@ export class GamePageComponent {
   selectedElem: any = '';
   isboardRotated: boolean = false;
   isWhiteTurn = true;
+  isLoading: boolean = false;
+  isFinish: boolean = false;
+
+  constructor(private router: Router) { }
 
   getPieceCodes(row: any, col: any) {
     let posVal = row + col;
@@ -162,4 +168,15 @@ export class GamePageComponent {
       el.classList.remove('possible-move-class');
     });
   }
+
+  exit() {
+    this.isFinish = true;
+  }
+
+  close() {
+    this.isFinish = false;
+    this.router.navigate(["/home"])
+  }
 }
+
+
