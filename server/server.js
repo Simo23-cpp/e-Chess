@@ -1,6 +1,7 @@
 const db_conncection_f = require("./db");
 const models = require("./model");
 const express = require("express");
+var cors = require('cors');
 const app = express();
 //const { createServer } = require("http");
 //const { Server } = require("socket.io");
@@ -10,7 +11,7 @@ const app = express();
 db_conncection_f();
 app.use(express.urlencoded({ extent: false }));
 app.use(express.json());
-
+app.use(cors());
 
 app.get("/getUsername", async (req, res) => {
     const query = await models.find().select("username").exec();
@@ -29,6 +30,7 @@ app.get("/getScore/:username", async (req, res) => {
 app.post("/insertUser", async (req, res) => {
     const user = req.body;
     if (user) {
+        console.log(user);
         const user_instance = new models(user);
         await user_instance.save();
         res.send(true).status(200);

@@ -16,6 +16,15 @@
     margin-bottom: 10px;
 }
 
+.color-alert {
+    color: whitesmoke;
+    font-size: 15px;
+    font-style: bold;
+    background-color: #DC3545;
+    border: 2px solid gray;
+}
+
+
 .btn-primary {
     font-size: medium;
     background-color: green;
