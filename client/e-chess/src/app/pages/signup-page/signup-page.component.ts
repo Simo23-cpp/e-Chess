@@ -2,12 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Component } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { Observer } from 'rxjs';
 
-export interface UsernameReq {
-  _id: string
-  username: string
-}
 
 @Component({
   selector: 'app-signup-page',
@@ -33,7 +28,7 @@ export class SignupPageComponent {
 
   });
 
-  async onSubmit() {
+  onSubmit() {
 
     const value = this.submitForm.value;
 
@@ -45,25 +40,28 @@ export class SignupPageComponent {
       return;
     }
 
-    await this.http.get<UsernameReq[]>("http://localhost:8080/getUsername").subscribe((res) => {
-      const usernames = res.map((elem) => { return elem.username });
-      const s = usernames.includes(value.username!);
-      if (s) {
+    this.http.get("http://localhost:8080/getUsername/" + value.username).subscribe((res) => {
+
+      if (res) {
         this.usernameExist = true;
         this.submitForm.controls.username.setValue("");
         return;
       }
+      else {
+        this.http.post("http://localhost:8080/insertUser", { "name": value.name, "surname": value.surname, "username": value.username, "password": value.password, "score": 0 })
+          .subscribe((res) => {
+            if (res) { this.submitForm.reset(); this.router.navigate(["/home"]); }
+            else {
+              console.log(res);
+            }
+          })
+
+
+
+      }
+
 
     })
-
-    this.http.post("http://localhost:8080/insertUser", { "name": value.name, "surname": value.surname, "username": value.username, "password": value.password, "score": 0 })
-      .subscribe((res) => {
-        if (res) { this.submitForm.reset(); this.router.navigate(["/home"]); }
-        else {
-          console.log(res);
-        }
-      })
-
 
 
 

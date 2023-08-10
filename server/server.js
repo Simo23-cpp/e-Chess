@@ -13,9 +13,14 @@ app.use(express.urlencoded({ extent: false }));
 app.use(express.json());
 app.use(cors());
 
-app.get("/getUsername", async (req, res) => {
-    const query = await models.find().select("username").exec();
-    res.send(query);
+app.get("/getUsername/:username", async (req, res) => {
+    const user = req.params;
+    if (user) {
+        const query = await models.find(user).exec();
+        if (query.length > 0) { res.send(true).status(200); }
+        else { res.send(false).status(200); }
+    }
+    else { res.send("bad request").status(400); }
 });
 
 app.get("/getScore/:username", async (req, res) => {
@@ -30,7 +35,6 @@ app.get("/getScore/:username", async (req, res) => {
 app.post("/insertUser", async (req, res) => {
     const user = req.body;
     if (user) {
-        console.log(user);
         const user_instance = new models(user);
         await user_instance.save();
         res.send(true).status(200);
