@@ -1,4 +1,6 @@
+import { HttpClient } from '@angular/common/http';
 import { Component } from '@angular/core';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 
 @Component({
@@ -8,17 +10,33 @@ import { Router } from '@angular/router';
 })
 export class LoginPageComponent {
 
-  constructor(private router: Router) {
+  isnotValid = false;
+
+  constructor(private router: Router, private http: HttpClient) {
 
   }
 
+  loginForm = new FormGroup({
+    username: new FormControl('', Validators.required),
+    password: new FormControl('', [Validators.required, Validators.minLength(6)])
+  });
 
-  login() {
+
+  onLogin() {
+    const value = this.loginForm.value;
     console.log('login');
-    this.router.navigate(['/home']);
-
-
+    this.http.post("http://localhost:8080/login", { "username": value.username, "password": value.password })
+      .subscribe((res) => {
+        if (res) { this.loginForm.reset(); this.router.navigate(["/home"]); }
+        else {
+          this.isnotValid = true;
+          this.loginForm.reset();
+          console.log(res);
+        }
+      })
   }
+
+
   signup() {
     console.log('signup');
     this.router.navigate(['/signup']);
