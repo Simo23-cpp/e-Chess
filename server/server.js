@@ -24,12 +24,16 @@ app.get("/getUsername/:username", async (req, res) => {
 });
 
 app.get("/getScore/:username", async (req, res) => {
-
     const username = req.params;
     console.log(username);
-    const query = await models.find(username).select("username score").exec();
-    console.log(query);
-    res.send(query).status(200);
+    if (username) {
+        const query = await models.find(username).select("score").exec();
+        if (query.length > 0) {
+            res.send(query).status(200);
+        }
+        else { res.send(false).status(200); }
+    }
+    else { res.send("bad request").status(400); }
 });
 
 app.post("/insertUser", async (req, res) => {

@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 
@@ -8,7 +8,11 @@ import { Router } from '@angular/router';
   templateUrl: './login-page.component.html',
   styleUrls: ['./login-page.component.css']
 })
-export class LoginPageComponent {
+export class LoginPageComponent implements OnInit {
+
+  ngOnInit(): void {
+    localStorage.clear();
+  }
 
   isnotValid = false;
 
@@ -27,13 +31,22 @@ export class LoginPageComponent {
     console.log('login');
     this.http.post("http://localhost:8080/login", { "username": value.username, "password": value.password })
       .subscribe((res) => {
-        if (res) { this.loginForm.reset(); this.router.navigate(["/home"]); }
+        if (res) {
+          this.loginForm.reset();
+          localStorage.setItem('isLogged', "true");
+          localStorage.setItem('username', value.username!);
+          this.router.navigate(["/home"]);
+        }
         else {
           this.isnotValid = true;
           this.loginForm.reset();
           console.log(res);
         }
-      })
+      },
+        (error) => {
+          console.log(error);
+        }
+      )
   }
 
 

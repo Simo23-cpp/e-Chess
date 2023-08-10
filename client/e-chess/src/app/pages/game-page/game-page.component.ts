@@ -1,8 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { ChessPieces, ChessPiecesCodes } from 'src/app/models/chess-pieces';
 import { initialBoardPosition } from 'src/app/models/initial-board-position';
-import { HomePageComponent } from '../home-page/home-page.component';
+
 
 @Component({
   selector: 'app-game-page',
@@ -19,6 +19,7 @@ export class GamePageComponent {
   isWhiteTurn = true;
   isLoading: boolean = false;
   isFinish: boolean = false;
+
 
   constructor(private router: Router) { }
 

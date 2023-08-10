@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 
@@ -11,7 +11,10 @@ import { Router } from '@angular/router';
 })
 
 
-export class SignupPageComponent {
+export class SignupPageComponent implements OnInit {
+  ngOnInit(): void {
+    localStorage.clear();
+  }
 
 
   constructor(private router: Router, private http: HttpClient) { }
@@ -50,7 +53,12 @@ export class SignupPageComponent {
       else {
         this.http.post("http://localhost:8080/insertUser", { "name": value.name, "surname": value.surname, "username": value.username, "password": value.password, "score": 0 })
           .subscribe((res) => {
-            if (res) { this.submitForm.reset(); this.router.navigate(["/home"]); }
+            if (res) {
+              this.submitForm.reset();
+              localStorage.setItem('isLogged', "true");
+              localStorage.setItem('username', value.username!);
+              this.router.navigate(["/home"]);
+            }
             else {
               console.log(res);
             }
