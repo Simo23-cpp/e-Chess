@@ -8,7 +8,6 @@ import { SignupPageComponent } from './pages/signup-page/signup-page.component';
 import { HomePageComponent } from './pages/home-page/home-page.component';
 import { GamePageComponent } from './pages/game-page/game-page.component';
 import { HeaderComponent } from './components/header/header.component';
-import { ProfileComponent } from './components/profile/profile.component';
 import { HttpClientModule } from '@angular/common/http';
 
 @NgModule({
@@ -19,7 +18,7 @@ import { HttpClientModule } from '@angular/common/http';
     HomePageComponent,
     GamePageComponent,
     HeaderComponent,
-    ProfileComponent
+
   ],
   imports: [
     BrowserModule,
