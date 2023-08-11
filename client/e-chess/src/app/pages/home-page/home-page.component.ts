@@ -21,19 +21,19 @@ export class HomePageComponent implements OnInit {
   constructor(private router: Router, private http: HttpClient) { }
 
   ngOnInit(): void {
-    this.username = localStorage.getItem('username');
-    localStorage.setItem("time", "0");
+    this.username = sessionStorage.getItem('username');
+    sessionStorage.setItem("time", "0");
     this.http.get<ScoreResponse[]>("http://localhost:8080/getScore/" + this.username).subscribe((res) => {
       console.log(res[0].score);
       this.score = res[0].score;
-      localStorage.setItem("score", this.score);
+      sessionStorage.setItem("score", this.score);
     })
   }
 
   play() {
     console.log(this.timeGame);
     if (this.timeGame != 0) {
-      localStorage.setItem("time", this.timeGame.toString())
+      sessionStorage.setItem("time", this.timeGame.toString())
       this.router.navigate(["/game"]);
     }
     else {
@@ -43,9 +43,6 @@ export class HomePageComponent implements OnInit {
 
   logout() {
     console.log("logout");
-    localStorage.setItem('isLogged', 'false');
-    localStorage.removeItem('username');
-    localStorage.removeItem('score');
     this.router.navigate(["/login"]);
   }
 

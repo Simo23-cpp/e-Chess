@@ -13,7 +13,7 @@ import { Router } from '@angular/router';
 
 export class SignupPageComponent implements OnInit {
   ngOnInit(): void {
-    localStorage.clear();
+    sessionStorage.clear();
   }
 
 
@@ -55,8 +55,8 @@ export class SignupPageComponent implements OnInit {
           .subscribe((res) => {
             if (res) {
               this.submitForm.reset();
-              localStorage.setItem('isLogged', "true");
-              localStorage.setItem('username', value.username!);
+              sessionStorage.setItem('isLogged', "true");
+              sessionStorage.setItem('username', value.username!);
               this.router.navigate(["/home"]);
             }
             else {

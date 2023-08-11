@@ -3,7 +3,7 @@ import { CanActivateFn, Router } from '@angular/router';
 
 export const gameGuard: CanActivateFn = (route, state) => {
   const router = inject(Router);
-  if (localStorage.getItem('isLogged') == "true" && localStorage.getItem("time") != "0") {
+  if (sessionStorage.getItem('isLogged') == "true" && sessionStorage.getItem("time") != "0") {
     return true;
   }
 

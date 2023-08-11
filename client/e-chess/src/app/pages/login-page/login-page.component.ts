@@ -11,7 +11,7 @@ import { Router } from '@angular/router';
 export class LoginPageComponent implements OnInit {
 
   ngOnInit(): void {
-    localStorage.clear();
+    sessionStorage.clear();
   }
 
   isnotValid = false;
@@ -33,8 +33,8 @@ export class LoginPageComponent implements OnInit {
       .subscribe((res) => {
         if (res) {
           this.loginForm.reset();
-          localStorage.setItem('isLogged', "true");
-          localStorage.setItem('username', value.username!);
+          sessionStorage.setItem('isLogged', "true");
+          sessionStorage.setItem('username', value.username!);
           this.router.navigate(["/home"]);
         }
         else {
