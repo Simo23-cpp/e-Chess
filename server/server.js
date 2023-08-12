@@ -3,16 +3,21 @@ const models = require("./model");
 const express = require("express");
 var cors = require('cors');
 const app = express();
-//const { createServer } = require("http");
-//const { Server } = require("socket.io");
-//const httpServer = createServer(app);
-//const io = new Server(httpServer);
+const { createServer } = require("http");
+const { Server } = require("socket.io");
+const httpServer = createServer(app);
+const io = new Server(httpServer, {
+    cors: {
+        origin: "http://localhost:4200"
+    }
+});
 
 db_conncection_f();
 app.use(express.urlencoded({ extent: false }));
 app.use(express.json());
 app.use(cors());
 
+//all route
 app.get("/getUsername/:username", async (req, res) => {
     const user = req.params;
     if (user) {
@@ -25,7 +30,7 @@ app.get("/getUsername/:username", async (req, res) => {
 
 app.get("/getScore/:username", async (req, res) => {
     const username = req.params;
-    console.log(username);
+
     if (username) {
         const query = await models.find(username).select("score").exec();
         if (query.length > 0) {
@@ -62,7 +67,90 @@ app.post("/login", async (req, res) => {
 
 });
 
+//socket.io handle
+var players = 0;
+var players_c = 0;
+const player_arr = [];
+var white;
+var black;
+io.on("connection", (socket) => {
 
+
+
+
+    socket.emit("connected", "now you are connected");
+    console.log("new client connected");
+    if (players == 0) {
+        socket.emit("setWhite", true);
+    }
+    else if (players == 1) {
+        socket.emit("setBlack", true);
+    }
+    else {
+        socket.emit("setWatcher", true);
+    }
+    players++;
+    players_c++;
+
+
+
+    socket.on("sendUsername", (user) => {
+        player_arr.push(user);
+        if (player_arr.length == 1) {
+            white = player_arr[0];
+        }
+        if (player_arr.length == 2) {
+            black = player_arr[1];
+        }
+        if (player_arr.length >= 2) {
+            io.sockets.emit("setPlayer", white, black)
+        }
+    })
+
+
+    if (players >= 2) {
+        io.sockets.emit("setLoader", false);
+    }
+
+
+
+
+    socket.on("chat message", (message) => {
+        message = message.toString();
+        console.log("Received:", message);
+        io.sockets.emit("chat message", message);
+    });
+
+
+    socket.on("chat private", (message, user) => {
+        if (user == white || user == black) {
+            console.log(player_arr);
+            message = message.toString();
+            console.log("Received:", message);
+            io.sockets.emit("chat private", message);
+        }
+
+    })
+
+
+
+    socket.on("disconnect", () => {
+        players_c--;
+        if (players_c < 2) {
+            io.sockets.emit("setFinish", true);
+        }
+        console.log("A client has disconnected");
+    });
+
+});
+
+
+
+
+
+httpServer.listen(3000, () => {
+    console.log("ws server listen on port 3000");
+});
 
 app.listen(8080, () => {
     console.log("Server listen on port 8080");
