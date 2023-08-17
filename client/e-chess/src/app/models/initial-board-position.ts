@@ -1,179 +1,179 @@
 import { ChessPieces } from './chess-pieces';
 
 export const initialBoardPosition: any = {
-    a1: {
+    A1: {
         name: ChessPieces.WhiteRook,
         color: 'white',
     },
-    a2: {
+    A2: {
         name: ChessPieces.WhitePawn,
         isFirstMove: true,
         color: 'white',
     },
-    a3: '',
-    a4: '',
-    a5: '',
-    a6: '',
-    a7: {
+    A3: '',
+    A4: '',
+    A5: '',
+    A6: '',
+    A7: {
         name: ChessPieces.BlackPawn,
         isFirstMove: true,
         color: 'black',
     },
-    a8: {
+    A8: {
         name: ChessPieces.BlackRook,
         color: 'black',
     },
-    b1: {
+    B1: {
         name: ChessPieces.WhiteKnight,
         color: 'white',
     },
-    b2: {
+    B2: {
         name: ChessPieces.WhitePawn,
         isFirstMove: true,
         color: 'white',
     },
-    b3: '',
-    b4: '',
-    b5: '',
-    b6: '',
-    b7: {
+    B3: '',
+    B4: '',
+    B5: '',
+    B6: '',
+    B7: {
         name: ChessPieces.BlackPawn,
         isFirstMove: true,
         color: 'black',
     },
-    b8: {
+    B8: {
         name: ChessPieces.BlackKnight,
         color: 'black',
     },
-    c1: {
+    C1: {
         name: ChessPieces.WhiteBishop,
         color: 'white',
     },
-    c2: {
+    C2: {
         name: ChessPieces.WhitePawn,
         isFirstMove: true,
         color: 'white',
     },
-    c3: '',
-    c4: '',
-    c5: '',
-    c6: '',
-    c7: {
+    C3: '',
+    C4: '',
+    C5: '',
+    C6: '',
+    C7: {
         name: ChessPieces.BlackPawn,
         isFirstMove: true,
         color: 'black',
     },
-    c8: {
+    C8: {
         name: ChessPieces.BlackBishop,
         color: 'black',
     },
-    d1: {
+    D1: {
         name: ChessPieces.WhiteQueen,
         color: 'white',
     },
-    d2: {
+    D2: {
         name: ChessPieces.WhitePawn,
         isFirstMove: true,
         color: 'white',
     },
-    d3: '',
-    d4: '',
-    d5: '',
-    d6: '',
-    d7: {
+    D3: '',
+    D4: '',
+    D5: '',
+    D6: '',
+    D7: {
         name: ChessPieces.BlackPawn,
         isFirstMove: true,
         color: 'black',
     },
-    d8: {
+    D8: {
         name: ChessPieces.BlackQueen,
         color: 'black',
     },
-    e1: {
+    E1: {
         name: ChessPieces.WhiteKing,
         color: 'white',
     },
-    e2: {
+    E2: {
         name: ChessPieces.WhitePawn,
         isFirstMove: true,
         color: 'white',
     },
-    e3: '',
-    e4: '',
-    e5: '',
-    e6: '',
-    e7: {
+    E3: '',
+    E4: '',
+    E5: '',
+    E6: '',
+    E7: {
         name: ChessPieces.BlackPawn,
         isFirstMove: true,
         color: 'black',
     },
-    e8: {
+    E8: {
         name: ChessPieces.BlackKing,
         color: 'black',
     },
-    f1: {
+    F1: {
         name: ChessPieces.WhiteBishop,
         color: 'white',
     },
-    f2: {
+    F2: {
         name: ChessPieces.WhitePawn,
         isFirstMove: true,
         color: 'white',
     },
-    f3: '',
-    f4: '',
-    f5: '',
-    f6: '',
-    f7: {
+    F3: '',
+    F4: '',
+    F5: '',
+    F6: '',
+    F7: {
         name: ChessPieces.BlackPawn,
         isFirstMove: true,
         color: 'black',
     },
-    f8: {
+    F8: {
         name: ChessPieces.BlackBishop,
         color: 'black',
     },
-    g1: {
+    G1: {
         name: ChessPieces.WhiteKnight,
         color: 'white',
     },
-    g2: {
+    G2: {
         name: ChessPieces.WhitePawn,
         isFirstMove: true,
         color: 'white',
     },
-    g3: '',
-    g4: '',
-    g5: '',
-    g6: '',
-    g7: {
+    G3: '',
+    G4: '',
+    G5: '',
+    G6: '',
+    G7: {
         name: ChessPieces.BlackPawn,
         isFirstMove: true,
         color: 'black',
     },
-    g8: {
+    G8: {
         name: ChessPieces.BlackKnight,
         color: 'black',
     },
-    h1: {
+    H1: {
         name: ChessPieces.WhiteRook,
         color: 'white',
     },
-    h2: {
+    H2: {
         name: ChessPieces.WhitePawn,
         isFirstMove: true,
         color: 'white',
     },
-    h3: '',
-    h4: '',
-    h5: '',
-    h6: '',
-    h7: {
+    H3: '',
+    H4: '',
+    H5: '',
+    H6: '',
+    H7: {
         name: ChessPieces.BlackPawn,
         isFirstMove: true,
         color: 'black',
     },
-    h8: {
+    H8: {
         name: ChessPieces.BlackRook,
         color: 'black',
     },

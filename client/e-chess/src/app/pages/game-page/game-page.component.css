@@ -342,7 +342,7 @@
 
     .chess-piece {
         display: flex;
-        font-size: 40px;
+        font-size: 35px;
         cursor: pointer;
         user-select: none;
         -moz-user-select: none;
@@ -462,7 +462,7 @@
 
     .chess-piece {
         display: flex;
-        font-size: 40px;
+        font-size: 35px;
         cursor: pointer;
         user-select: none;
         -moz-user-select: none;
@@ -607,12 +607,23 @@
         margin-top: 5px;
     }
 
+    .chess-piece {
+        display: flex;
+        font-size: 35px;
+        cursor: pointer;
+        user-select: none;
+        -moz-user-select: none;
+        -webkit-user-select: none;
+        -ms-user-select: none;
+        margin-top: 10px;
+    }
+
     .chess-board {
         display: flex;
         flex-wrap: wrap;
         justify-content: center;
-        width: 550px;
-        height: 550px;
+        width: 500px;
+        height: 500px;
         padding-left: 10px;
     }
 

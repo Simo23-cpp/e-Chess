@@ -14,24 +14,23 @@ import { initialBoardPosition } from 'src/app/models/initial-board-position';
 export class GamePageComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
-
+    this.boardPosition = JSON.parse(JSON.stringify(initialBoardPosition));
     this.connectWebSocket();
   }
 
   ngOnDestroy(): void {
     this.socket.close();
-    this.router.navigate(["/home"])
+    this.router.navigate(["/home"]);
   }
 
 
-  letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
+  letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
   numbers = [8, 7, 6, 5, 4, 3, 2, 1];
-  possibleMoves: string[] = [];
-  consumableMoves: string[] = [];
+  /*/possibleMoves: string[] = [];
+  consumableMoves: string[] = [];*/
   selectedElem: any = '';
   isboardRotated: boolean = false;
   msg = new FormControl('');
-
   //boolean for handle the role
   isBlack = false;
   isWhite = false;
@@ -41,141 +40,164 @@ export class GamePageComponent implements OnInit, OnDestroy {
   playerBlack: string = "";
   //array for chat
   chat_message: string[] = [];
-
+  history: string[] = [];
+  //array for moves
+  moves: string[] = [];
+  cellValue: any;
   //loader
   isLoading: boolean = true;
   //modal for game finish
   isFinish: boolean = false;
   //socket.io socket
   socket = io("ws://localhost:3000");
+  counter: number = 0;
+  boardPosition: any;
 
   constructor(private router: Router) { }
 
   getPieceCodes(row: any, col: any) {
     let posVal = row + col;
-    if (initialBoardPosition[posVal] === '') return;
-    let pieceName = ChessPieces[initialBoardPosition[posVal].name]
+    if (this.boardPosition[posVal] === '') return;
+    let pieceName = ChessPieces[this.boardPosition[posVal].name]
     //console.log(pieceName)
     return ChessPiecesCodes[pieceName];
   }
 
   selectCell(row: any, col: number) {
-    this.clearSelectedCells();
-    let cellValue = row + col;
-    if (
-      initialBoardPosition[cellValue] === '' &&
-      this.possibleMoves.length > 0 &&
-      this.selectedElem !== ''
-    ) {
-      if (this.possibleMoves.indexOf(cellValue) !== -1) {
-        initialBoardPosition[cellValue] =
-          initialBoardPosition[this.selectedElem];
-        initialBoardPosition[cellValue].isFirstMove = false;
-        initialBoardPosition[this.selectedElem] = '';
+
+    console.log(this.boardPosition)
+
+    console.log("mosse" + this.moves);
+    this.cellValue = row + col;
+    let piece = this.getPieceCodes(row, col);
+    if (this.isWhite && (this.counter % 2) == 0) {
+      if (piece != undefined && (piece == ChessPiecesCodes.WhitePawn || piece == ChessPiecesCodes.WhiteRook || piece == ChessPiecesCodes.WhiteQueen || piece == ChessPiecesCodes.WhiteKnight || piece == ChessPiecesCodes.WhiteKing || piece == ChessPiecesCodes.WhiteBishop)) {
+        console.log(this.getPieceCodes(row, col))
+        this.socket.emit("PossibleMovesReq", this.cellValue, sessionStorage.getItem("username"));
       }
-      this.possibleMoves = [];
-      this.selectedElem = '';
-      return;
+      else {
+
+
+
+        if (this.moves.includes(this.cellValue)) {
+          //this.move(this.cellValue, this.selectedElem);
+          this.socket.emit("movePiece", this.cellValue, this.selectedElem, sessionStorage.getItem("username"));
+        }
+        this.clearSelectedCells();
+        this.selectedElem = "";
+      }
+
     }
 
+    if (this.isBlack && (this.counter % 2) == 1) {
+      if (piece != undefined && (piece == ChessPiecesCodes.BlackPawn || piece == ChessPiecesCodes.BlackRook || piece == ChessPiecesCodes.BlackQueen || piece == ChessPiecesCodes.BlackKnight || piece == ChessPiecesCodes.BlackKing || piece == ChessPiecesCodes.BlackBishop)) {
+        console.log("pezzo" + this.getPieceCodes(row, col))
+        this.socket.emit("PossibleMovesReq", this.cellValue, sessionStorage.getItem("username"));
+      }
+      else {
+
+
+
+        if (this.moves.includes(this.cellValue)) {
+          //this.move(this.cellValue, this.selectedElem);
+          this.socket.emit("movePiece", this.cellValue, this.selectedElem, sessionStorage.getItem("username"));
+        }
+        this.clearSelectedCells();
+        this.selectedElem = "";
+      }
+
+    }
     // pawn
-    this.selectedElem = cellValue;
-    let pieceObj = initialBoardPosition[cellValue];
+    this.selectedElem = this.cellValue;
+    /* let pieceObj = initialBoardPosition[this.cellValue];*/
 
-    if (
-      pieceObj.name == ChessPieces.WhitePawn ||
-      pieceObj.name == ChessPieces.BlackPawn
-    ) {
-      let pawnMoves = this.getPossiblePawnMoves(pieceObj, row, col);
-      this.possibleMoves = pawnMoves.move;
-      this.consumableMoves = pawnMoves.consumable;
 
-      this.consumableMoves.forEach((element) => {
-        let elem = document.getElementById(element) as HTMLElement;
-        elem.classList.add('possible-move-class');
-      });
-
-      this.possibleMoves.forEach((element) => {
-        let elem = document.getElementById(element) as HTMLElement;
-        elem.classList.add('possible-move-class');
-      });
-    }
   }
 
-  getPossiblePawnMoves(pieceObj: any, row: any, col: number) {
-    let moveArr: string[] = [];
-    let consumableArr: string[] = [];
-    if (pieceObj.color === 'white') {
-      let hasBlockingPiece = initialBoardPosition[row + (col + 1)] !== '';
+  move(n_position: any, o_position: any) {
+    this.boardPosition[n_position] =
+      this.boardPosition[o_position];
+    this.boardPosition[o_position] = '';
 
-      if (this.letters.indexOf(row) === this.letters.length - 1) {
-        consumableArr = [
-          this.letters[this.letters.indexOf(row) - 1] + (col + 1),
-        ];
-      } else if (this.letters.indexOf(row) === 0) {
-        consumableArr = [
-          this.letters[this.letters.indexOf(row) + 1] + (col + 1),
-        ];
-      } else {
-        consumableArr = [
-          this.letters[this.letters.indexOf(row) + 1] + (col + 1),
-          this.letters[this.letters.indexOf(row) - 1] + (col + 1),
-        ];
-      }
-
-      if (hasBlockingPiece) {
-        moveArr = [];
-      } else if (pieceObj.isFirstMove) {
-        moveArr = [row + (col + 1), row + (col + 2)];
-      } else {
-        moveArr = [row + (col + 1)];
-      }
-    }
-    if (pieceObj.color === 'black') {
-      let hasBlockingPiece = initialBoardPosition[row + (col - 1)] !== '';
-
-      if (this.letters.indexOf(row) === this.letters.length - 1) {
-        consumableArr = [
-          this.letters[this.letters.indexOf(row) - 1] + (col - 1),
-        ];
-      } else if (this.letters.indexOf(row) === 0) {
-        consumableArr = [
-          this.letters[this.letters.indexOf(row) + 1] + (col - 1),
-        ];
-      } else {
-        consumableArr = [
-          this.letters[this.letters.indexOf(row) + 1] + (col - 1),
-          this.letters[this.letters.indexOf(row) - 1] + (col - 1),
-        ];
-      }
-
-      if (hasBlockingPiece) {
-        moveArr = [];
-      } else if (pieceObj.isFirstMove) {
-        moveArr = [row + (col - 1), row + (col - 2)];
-      } else {
-        moveArr = [row + (col - 1)];
-      }
-    }
-
-    moveArr.forEach((el, i) => {
-      if (initialBoardPosition[el] !== '') {
-        moveArr.splice(i, 1);
-      }
-    });
-
-    consumableArr = consumableArr.filter(function (el) {
-      let boardPos = initialBoardPosition[el];
-      return (
-        boardPos !== '' && pieceObj.color !== initialBoardPosition[el].color
-      );
-    });
-
-    return { move: moveArr, consumable: consumableArr };
+    this.selectedElem = '';
+    this.clearSelectedCells();
   }
 
-  getConsumableArr() { }
-
+  /*
+    getPossiblePawnMoves(pieceObj: any, row: any, col: number) {
+      let moveArr: string[] = [];
+      let consumableArr: string[] = [];
+      if (pieceObj.color === 'white') {
+        let hasBlockingPiece = initialBoardPosition[row + (col + 1)] !== '';
+  
+        if (this.letters.indexOf(row) === this.letters.length - 1) {
+          consumableArr = [
+            this.letters[this.letters.indexOf(row) - 1] + (col + 1),
+          ];
+        } else if (this.letters.indexOf(row) === 0) {
+          consumableArr = [
+            this.letters[this.letters.indexOf(row) + 1] + (col + 1),
+          ];
+        } else {
+          consumableArr = [
+            this.letters[this.letters.indexOf(row) + 1] + (col + 1),
+            this.letters[this.letters.indexOf(row) - 1] + (col + 1),
+          ];
+        }
+  
+        if (hasBlockingPiece) {
+          moveArr = [];
+        } else if (pieceObj.isFirstMove) {
+          moveArr = [row + (col + 1), row + (col + 2)];
+        } else {
+          moveArr = [row + (col + 1)];
+        }
+      }
+      if (pieceObj.color === 'black') {
+        let hasBlockingPiece = initialBoardPosition[row + (col - 1)] !== '';
+  
+        if (this.letters.indexOf(row) === this.letters.length - 1) {
+          consumableArr = [
+            this.letters[this.letters.indexOf(row) - 1] + (col - 1),
+          ];
+        } else if (this.letters.indexOf(row) === 0) {
+          consumableArr = [
+            this.letters[this.letters.indexOf(row) + 1] + (col - 1),
+          ];
+        } else {
+          consumableArr = [
+            this.letters[this.letters.indexOf(row) + 1] + (col - 1),
+            this.letters[this.letters.indexOf(row) - 1] + (col - 1),
+          ];
+        }
+  
+        if (hasBlockingPiece) {
+          moveArr = [];
+        } else if (pieceObj.isFirstMove) {
+          moveArr = [row + (col - 1), row + (col - 2)];
+        } else {
+          moveArr = [row + (col - 1)];
+        }
+      }
+  
+      moveArr.forEach((el, i) => {
+        if (initialBoardPosition[el] !== '') {
+          moveArr.splice(i, 1);
+        }
+      });
+  
+      consumableArr = consumableArr.filter(function (el) {
+        let boardPos = initialBoardPosition[el];
+        return (
+          boardPos !== '' && pieceObj.color !== initialBoardPosition[el].color
+        );
+      });
+  
+      return { move: moveArr, consumable: consumableArr };
+    }
+  
+    getConsumableArr() { }
+  */
   rotateBoard() {
     if (this.isboardRotated) {
       this.letters.sort((a, b) => 0 - (a > b ? -1 : 1));
@@ -186,8 +208,8 @@ export class GamePageComponent implements OnInit, OnDestroy {
     }
     this.isboardRotated = !this.isboardRotated;
     /*const username = sessionStorage.getItem('username');
-    const message = "private message";
-    this.socket.emit("chat private", `${username}: ${message}`, sessionStorage.getItem("username"));*/
+const message = "private message";
+this.socket.emit("chat private", `${username}: ${message}`, sessionStorage.getItem("username"));*/
   }
 
   clearSelectedCells() {
@@ -285,9 +307,25 @@ export class GamePageComponent implements OnInit, OnDestroy {
 
     //emitted only for players that play
     this.socket.on("chat private", (message: any) => {
-      console.log("Received:", message)
-      this.displayMessage(message);
+      this.moves = message;
+      console.log("moves" + this.moves);
+      this.clearSelectedCells();
+      this.moves.forEach((element: any) => {
+        console.log(element);
+        let elem = document.getElementById(element) as HTMLElement;
+        elem.classList.add('possible-move-class');
+
+      });
     });
+
+    this.socket.on("moveFrontEnd", (new_p, old_p) => {
+      this.counter++;
+      this.move(new_p, old_p);
+      let piece = this.getPieceCodes(new_p[0], new_p[1]);
+      this.history.push(this.counter + piece + new_p + "  ");
+      console.log("history" + this.history);
+      this.moves = [];
+    })
 
     this.socket.on("setFinish", (bool) => {
       this.isFinish = bool;

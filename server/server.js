@@ -67,10 +67,18 @@ app.post("/login", async (req, res) => {
 
 });
 
+//add the engine
+const jsChessEngine = require('js-chess-engine');
+var game;
+
+//game.printToConsole();
+
+
+
 //socket.io handle
 var players = 0;
 var players_c = 0;
-const player_arr = [];
+var player_arr = [];
 var white;
 var black;
 io.on("connection", (socket) => {
@@ -85,6 +93,8 @@ io.on("connection", (socket) => {
     }
     else if (players == 1) {
         socket.emit("setBlack", true);
+        game = new jsChessEngine.Game();
+        game.printToConsole();
     }
     else {
         socket.emit("setWatcher", true);
@@ -101,6 +111,7 @@ io.on("connection", (socket) => {
         }
         if (player_arr.length == 2) {
             black = player_arr[1];
+
         }
         if (player_arr.length >= 2) {
             io.sockets.emit("setPlayer", white, black)
@@ -121,22 +132,44 @@ io.on("connection", (socket) => {
         io.sockets.emit("chat message", message);
     });
 
-
-    socket.on("chat private", (message, user) => {
+    socket.on("PossibleMovesReq", (position, user) => {
         if (user == white || user == black) {
-            console.log(player_arr);
-            message = message.toString();
-            console.log("Received:", message);
+            message = game.moves(position);
+            console.log(message);
             io.sockets.emit("chat private", message);
         }
-
     })
 
+    socket.on("movePiece", (new_p, old_p, user) => {
+        if (user == white || user == black) {
+            console.log("move");
+            // game.removePiece(new_p);
+            game.move(old_p, new_p);
+            console.log(game.exportJson());
+            game.printToConsole();
+            io.sockets.emit("moveFrontEnd", new_p, old_p);
+        }
+    })
+
+    /*/
+        socket.on("chat private", (message, user) => {
+            if (user == white || user == black) {
+                console.log(player_arr);
+                console.log("Received:", message);
+                io.sockets.emit("chat private", message);
+            }
+    
+        })
+    */
 
 
     socket.on("disconnect", () => {
         players_c--;
         if (players_c < 2) {
+            player_arr = [];
+            players = 0;
+            players_c = 0;
+
             io.sockets.emit("setFinish", true);
         }
         console.log("A client has disconnected");

@@ -23,7 +23,8 @@
             </div>
         </div>
         <div class="flex-lateral col-4 colll-">
-            <div class="moves col-12 nine-">1.&#9817;</div>
+            <div class="moves col-12 nine-"> <span *ngFor="let move of history" [innerHTML]="move"
+                    style="font-family: cursive;"> </span> </div>
             <div class="btn-container col-12 nine-">
                 <button type="button" class="btn btn-primary col-5 b-size" (click)="rotateBoard()">Flip
                     <i class="bi bi-arrow-repeat"></i>
