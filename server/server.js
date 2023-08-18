@@ -76,8 +76,11 @@ var game;
 
 
 //socket.io handle
+var arr_story;
+var history = [];
 var players = 0;
 var players_c = 0;
+var main = 0;
 var player_arr = [];
 var white;
 var black;
@@ -90,14 +93,16 @@ io.on("connection", (socket) => {
     console.log("new client connected");
     if (players == 0) {
         socket.emit("setWhite", true);
+        main++;
     }
     else if (players == 1) {
         socket.emit("setBlack", true);
         game = new jsChessEngine.Game();
         game.printToConsole();
+        main++;
     }
     else {
-        socket.emit("setWatcher", true);
+        socket.emit("setWatcher", true, history, arr_story);
     }
     players++;
     players_c++;
@@ -136,16 +141,18 @@ io.on("connection", (socket) => {
         if (user == white || user == black) {
             message = game.moves(position);
             console.log(message);
-            io.sockets.emit("chat private", message);
+            socket.emit("chat private", message);
         }
     })
 
     socket.on("movePiece", (new_p, old_p, user) => {
         if (user == white || user == black) {
             console.log("move");
+            history.push(old_p);
+            history.push(new_p);
             // game.removePiece(new_p);
             game.move(old_p, new_p);
-            console.log(game.exportJson());
+            console.log(history);
             game.printToConsole();
             io.sockets.emit("moveFrontEnd", new_p, old_p);
         }
@@ -162,13 +169,25 @@ io.on("connection", (socket) => {
         })
     */
 
+    socket.on("refreshHistory", (story) => {
+        arr_story = story;
+    })
+
+    socket.on("exit", (user) => {
+        if (user == black || user == white) {
+            main--;
+        }
+    })
+
 
     socket.on("disconnect", () => {
         players_c--;
-        if (players_c < 2) {
+        if (players_c < 2 || main < 2) {
             player_arr = [];
             players = 0;
             players_c = 0;
+            history = [];
+            arr_story = [];
 
             io.sockets.emit("setFinish", true);
         }

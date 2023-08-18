@@ -215,7 +215,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 50px;
+    font-size: 40px;
     width: 100%;
     height: 100%;
 
@@ -620,11 +620,15 @@
 
     .chess-board {
         display: flex;
-        flex-wrap: wrap;
         justify-content: center;
         width: 500px;
         height: 500px;
         padding-left: 10px;
+    }
+
+    .turn {
+        border: 2px solid yellow;
+        border-radius: 10px;
     }
 
 }

@@ -19,6 +19,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.socket.emit("exit", sessionStorage.getItem("username"));
     this.socket.close();
     this.router.navigate(["/home"]);
   }
@@ -272,9 +273,20 @@ this.socket.emit("chat private", `${username}: ${message}`, sessionStorage.getIt
       this.isBlack = bool;
     })
 
-    this.socket.on("setWatcher", (bool) => {
+    this.socket.on("setWatcher", (bool, arr, story) => {
       console.log(sessionStorage.getItem("username") + "is watcher");
       this.isWatcher = bool;
+      let pari = 0;
+      let dispari = 1;
+      for (let i = 0; i < arr.length / 2; i++) {
+        let from = arr[pari];
+        let to = arr[dispari];
+        this.move(to, from);
+        pari = pari + 2;
+        dispari = dispari + 2;
+      }
+      this.history = story;
+      alert("you are watcher, you can only watch the game at this moment");
     })
 
     this.socket.on("setLoader", (bool) => {
@@ -323,12 +335,15 @@ this.socket.emit("chat private", `${username}: ${message}`, sessionStorage.getIt
       this.move(new_p, old_p);
       let piece = this.getPieceCodes(new_p[0], new_p[1]);
       this.history.push(this.counter + piece + new_p + "  ");
+      this.socket.emit("refreshHistory", this.history);
       console.log("history" + this.history);
       this.moves = [];
     })
 
     this.socket.on("setFinish", (bool) => {
       this.isFinish = bool;
+      this.socket.emit("exit", sessionStorage.getItem("username"));
+      this.socket.close();
     })
 
     // Event emitted on not found error

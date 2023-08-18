@@ -22,31 +22,21 @@ export class HomePageComponent implements OnInit {
 
   ngOnInit(): void {
     this.username = sessionStorage.getItem('username');
-    sessionStorage.setItem("time", "0");
     this.http.get<ScoreResponse[]>("http://localhost:8080/getScore/" + this.username).subscribe((res) => {
-      console.log(res[0].score);
       this.score = res[0].score;
       sessionStorage.setItem("score", this.score);
     })
   }
 
   play() {
-    console.log(this.timeGame);
-    if (this.timeGame != 0) {
-      sessionStorage.setItem("time", this.timeGame.toString())
-      this.router.navigate(["/game"]);
-    }
-    else {
-      this.showAlert = true;
-    }
+    this.router.navigate(["/game"]);
   }
+
 
   logout() {
     console.log("logout");
     this.router.navigate(["/login"]);
   }
 
-  setTime(time: number) {
-    this.timeGame = time;
-  }
+
 }
