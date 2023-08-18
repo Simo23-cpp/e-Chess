@@ -76,6 +76,7 @@ var game;
 
 
 //socket.io handle
+var contatore;
 var arr_story;
 var history = [];
 var players = 0;
@@ -102,7 +103,7 @@ io.on("connection", (socket) => {
         main++;
     }
     else {
-        socket.emit("setWatcher", true, history, arr_story);
+        socket.emit("setWatcher", true, history, arr_story, contatore);
     }
     players++;
     players_c++;
@@ -155,6 +156,16 @@ io.on("connection", (socket) => {
             console.log(history);
             game.printToConsole();
             io.sockets.emit("moveFrontEnd", new_p, old_p);
+            let checkmate = game.exportJson().checkMate;
+            let isFinish = game.exportJson().isFinished;
+            console.log("isFinish " + isFinish);
+            console.log(checkmate);
+            if (checkmate && isFinish) {
+                io.sockets.emit("setFinish", true);
+            }
+            else if (!checkmate && isFinish) {
+                io.sockets.emit("draw", true);
+            }
         }
     })
 
@@ -169,8 +180,18 @@ io.on("connection", (socket) => {
         })
     */
 
-    socket.on("refreshHistory", (story) => {
+    socket.on("refreshHistory", (story, counter) => {
         arr_story = story;
+        contatore = counter;
+    })
+
+    socket.on("arrocco", (new_p, old_p, user) => {
+        if (user == white) {
+            console.log("arrocco" + history);
+            history.push(old_p);
+            history.push(new_p);
+            console.log("arrocco" + history);
+        }
     })
 
     socket.on("exit", (user) => {

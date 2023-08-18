@@ -273,7 +273,7 @@ this.socket.emit("chat private", `${username}: ${message}`, sessionStorage.getIt
       this.isBlack = bool;
     })
 
-    this.socket.on("setWatcher", (bool, arr, story) => {
+    this.socket.on("setWatcher", (bool, arr, story, contatore) => {
       console.log(sessionStorage.getItem("username") + "is watcher");
       this.isWatcher = bool;
       let pari = 0;
@@ -286,6 +286,7 @@ this.socket.emit("chat private", `${username}: ${message}`, sessionStorage.getIt
         dispari = dispari + 2;
       }
       this.history = story;
+      this.counter = contatore;
       alert("you are watcher, you can only watch the game at this moment");
     })
 
@@ -334,8 +335,30 @@ this.socket.emit("chat private", `${username}: ${message}`, sessionStorage.getIt
       this.counter++;
       this.move(new_p, old_p);
       let piece = this.getPieceCodes(new_p[0], new_p[1]);
-      this.history.push(this.counter + piece + new_p + "  ");
-      this.socket.emit("refreshHistory", this.history);
+      if (piece == ChessPiecesCodes.WhiteKing && old_p == "E1" && new_p == "G1") {
+        this.move("F1", "H1");
+        this.history.push(this.counter + piece + " O-O ");
+        this.socket.emit("arrocco", "F1", "H1", sessionStorage.getItem("username"));
+      }
+      else if (piece == ChessPiecesCodes.WhiteKing && old_p == "E1" && new_p == "C1") {
+        this.move("D1", "A1");
+        this.history.push(this.counter + piece + " O-O-O ");
+        this.socket.emit("arrocco", "D1", "A1", sessionStorage.getItem("username"));
+      }
+      else if (piece == ChessPiecesCodes.BlackKing && old_p == "E8" && new_p == "G8") {
+        this.move("F8", "H8");
+        this.history.push(this.counter + piece + " O-O ");
+        this.socket.emit("arrocco", "F8", "H8", sessionStorage.getItem("username"));
+      }
+      else if (piece == ChessPiecesCodes.BlackKing && old_p == "E8" && new_p == "C8") {
+        this.move("D8", "A8");
+        this.history.push(this.counter + piece + " O-O-O ");
+        this.socket.emit("arrocco", "D8", "A8", sessionStorage.getItem("username"));
+      }
+      else {
+        this.history.push(this.counter + piece + new_p + "  ");
+      }
+      this.socket.emit("refreshHistory", this.history, this.counter);
       console.log("history" + this.history);
       this.moves = [];
     })
