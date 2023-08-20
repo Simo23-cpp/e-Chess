@@ -85,6 +85,8 @@ var main = 0;
 var player_arr = [];
 var white;
 var black;
+var w_score;
+var b_score;
 io.on("connection", (socket) => {
 
 
@@ -110,17 +112,19 @@ io.on("connection", (socket) => {
 
 
 
-    socket.on("sendUsername", (user) => {
+    socket.on("sendUsername", (user, score) => {
         player_arr.push(user);
         if (player_arr.length == 1) {
             white = player_arr[0];
+            w_score = score;
         }
         if (player_arr.length == 2) {
             black = player_arr[1];
+            b_score = score
 
         }
         if (player_arr.length >= 2) {
-            io.sockets.emit("setPlayer", white, black)
+            io.sockets.emit("setPlayer", white, black, w_score, b_score);
         }
     })
 
@@ -161,6 +165,8 @@ io.on("connection", (socket) => {
             console.log("isFinish " + isFinish);
             console.log(checkmate);
             if (checkmate && isFinish) {
+                let winner = game.exportJson().turn;
+                io.sockets.emit("setWinner", winner);
                 io.sockets.emit("setFinish", true);
             }
             else if (!checkmate && isFinish) {
@@ -197,6 +203,8 @@ io.on("connection", (socket) => {
     socket.on("exit", (user) => {
         if (user == black || user == white) {
             main--;
+            io.emit("abbandono", user);
+            io.sockets.emit("setFinish", true);
         }
     })
 

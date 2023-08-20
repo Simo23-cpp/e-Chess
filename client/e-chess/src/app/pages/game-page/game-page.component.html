@@ -56,25 +56,35 @@
 
     <div class="card col-6 card-s-">
         <div class="card-header">
-            The black won
+            <span *ngIf="isDraw">Draw</span>
+            <span *ngIf="isFinish && !!winner">{{winner}} win</span>
+
         </div>
         <div class="c-flex">
             <div class="m-flex">
                 <div class=" player-1"><i class="bi bi-person-fill" style="color: black;font-size: 30px;"></i>
-                    simo</div>
+                    {{playerBlack}}</div>
                 <div class=" player-2"><i class="bi bi-person-fill" style="color: whitesmoke;font-size: 30px;"></i>
-                    fede
+                    {{playerWhite}}
                 </div>
 
             </div>
             <div class="m-flex">
                 <div> <i class="bi bi-trophy-fill"
                         style="padding-top: 5px;color: rgb(248, 222, 53);font-size: 20px;"></i>
-                    1000<span class="w-color">+7</span>
+                    {{b_score}}<span [ngClass]="{'w-color':winner==playerBlack,'l-color':winner==playerWhite}">
+                        <span *ngIf="winner==playerBlack">{{victory}}</span>
+                        <span *ngIf="winner==playerWhite">{{lose}}</span>
+                    </span>
                 </div>
                 <div> <i class="bi bi-trophy-fill"
                         style="padding-top: 5px;color: rgb(248, 222, 53);font-size: 20px;"></i>
-                    1000<span class="l-color">-7</span></div>
+                    {{w_score}}<span [ngClass]="{'w-color':winner==playerWhite,'l-color':winner==playerBlack}">
+
+                        <span *ngIf="winner==playerWhite">{{victory}}</span>
+                        <span *ngIf="winner==playerBlack">{{lose}}</span>
+                    </span>
+                </div>
             </div>
             <div class="m-flex">
                 <button type="button" class="btn btn-primary col-3 c-size" style="margin-top: 20px;margin-bottom: 10px;"

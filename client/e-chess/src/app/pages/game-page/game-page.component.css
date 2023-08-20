@@ -24,6 +24,10 @@
     background: #555;
 }
 
+.turn {
+    border: 2px solid yellow;
+    border-radius: 10px;
+}
 
 .loader {
     position: fixed;
@@ -626,9 +630,6 @@
         padding-left: 10px;
     }
 
-    .turn {
-        border: 2px solid yellow;
-        border-radius: 10px;
-    }
+
 
 }

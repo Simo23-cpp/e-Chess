@@ -39,6 +39,12 @@ export class GamePageComponent implements OnInit, OnDestroy {
   //players
   playerWhite: string = "";
   playerBlack: string = "";
+  //other score
+  w_score: any;
+  b_score: any;
+  victory: string = "+10";
+  lose: string = "-10";
+  winner: any
   //array for chat
   chat_message: string[] = [];
   history: string[] = [];
@@ -49,6 +55,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
   isLoading: boolean = true;
   //modal for game finish
   isFinish: boolean = false;
+  isDraw: boolean = false;
   //socket.io socket
   socket = io("ws://localhost:3000");
   counter: number = 0;
@@ -75,6 +82,8 @@ export class GamePageComponent implements OnInit, OnDestroy {
       if (piece != undefined && (piece == ChessPiecesCodes.WhitePawn || piece == ChessPiecesCodes.WhiteRook || piece == ChessPiecesCodes.WhiteQueen || piece == ChessPiecesCodes.WhiteKnight || piece == ChessPiecesCodes.WhiteKing || piece == ChessPiecesCodes.WhiteBishop)) {
         console.log(this.getPieceCodes(row, col))
         this.socket.emit("PossibleMovesReq", this.cellValue, sessionStorage.getItem("username"));
+
+
       }
       else {
 
@@ -83,6 +92,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
         if (this.moves.includes(this.cellValue)) {
           //this.move(this.cellValue, this.selectedElem);
           this.socket.emit("movePiece", this.cellValue, this.selectedElem, sessionStorage.getItem("username"));
+
         }
         this.clearSelectedCells();
         this.selectedElem = "";
@@ -102,12 +112,16 @@ export class GamePageComponent implements OnInit, OnDestroy {
         if (this.moves.includes(this.cellValue)) {
           //this.move(this.cellValue, this.selectedElem);
           this.socket.emit("movePiece", this.cellValue, this.selectedElem, sessionStorage.getItem("username"));
+
+
         }
         this.clearSelectedCells();
         this.selectedElem = "";
       }
 
     }
+
+
     // pawn
     this.selectedElem = this.cellValue;
     /* let pieceObj = initialBoardPosition[this.cellValue];*/
@@ -124,81 +138,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
     this.clearSelectedCells();
   }
 
-  /*
-    getPossiblePawnMoves(pieceObj: any, row: any, col: number) {
-      let moveArr: string[] = [];
-      let consumableArr: string[] = [];
-      if (pieceObj.color === 'white') {
-        let hasBlockingPiece = initialBoardPosition[row + (col + 1)] !== '';
-  
-        if (this.letters.indexOf(row) === this.letters.length - 1) {
-          consumableArr = [
-            this.letters[this.letters.indexOf(row) - 1] + (col + 1),
-          ];
-        } else if (this.letters.indexOf(row) === 0) {
-          consumableArr = [
-            this.letters[this.letters.indexOf(row) + 1] + (col + 1),
-          ];
-        } else {
-          consumableArr = [
-            this.letters[this.letters.indexOf(row) + 1] + (col + 1),
-            this.letters[this.letters.indexOf(row) - 1] + (col + 1),
-          ];
-        }
-  
-        if (hasBlockingPiece) {
-          moveArr = [];
-        } else if (pieceObj.isFirstMove) {
-          moveArr = [row + (col + 1), row + (col + 2)];
-        } else {
-          moveArr = [row + (col + 1)];
-        }
-      }
-      if (pieceObj.color === 'black') {
-        let hasBlockingPiece = initialBoardPosition[row + (col - 1)] !== '';
-  
-        if (this.letters.indexOf(row) === this.letters.length - 1) {
-          consumableArr = [
-            this.letters[this.letters.indexOf(row) - 1] + (col - 1),
-          ];
-        } else if (this.letters.indexOf(row) === 0) {
-          consumableArr = [
-            this.letters[this.letters.indexOf(row) + 1] + (col - 1),
-          ];
-        } else {
-          consumableArr = [
-            this.letters[this.letters.indexOf(row) + 1] + (col - 1),
-            this.letters[this.letters.indexOf(row) - 1] + (col - 1),
-          ];
-        }
-  
-        if (hasBlockingPiece) {
-          moveArr = [];
-        } else if (pieceObj.isFirstMove) {
-          moveArr = [row + (col - 1), row + (col - 2)];
-        } else {
-          moveArr = [row + (col - 1)];
-        }
-      }
-  
-      moveArr.forEach((el, i) => {
-        if (initialBoardPosition[el] !== '') {
-          moveArr.splice(i, 1);
-        }
-      });
-  
-      consumableArr = consumableArr.filter(function (el) {
-        let boardPos = initialBoardPosition[el];
-        return (
-          boardPos !== '' && pieceObj.color !== initialBoardPosition[el].color
-        );
-      });
-  
-      return { move: moveArr, consumable: consumableArr };
-    }
-  
-    getConsumableArr() { }
-  */
+
   rotateBoard() {
     if (this.isboardRotated) {
       this.letters.sort((a, b) => 0 - (a > b ? -1 : 1));
@@ -229,6 +169,7 @@ this.socket.emit("chat private", `${username}: ${message}`, sessionStorage.getIt
   //funciotn for modal
   exit() {
     this.isFinish = true;
+    this.socket.emit("exit", sessionStorage.getItem("username"));
   }
 
   //funcition for chat
@@ -257,7 +198,8 @@ this.socket.emit("chat private", `${username}: ${message}`, sessionStorage.getIt
 
     // Event emitted on successful connection
     this.socket.on("connected", (message: any) => {
-      this.socket.emit("sendUsername", sessionStorage.getItem("username"));
+      this.socket.emit("sendUsername", sessionStorage.getItem("username"), sessionStorage.getItem("score"));
+
       this.displayMessage(message);
 
     });
@@ -282,6 +224,15 @@ this.socket.emit("chat private", `${username}: ${message}`, sessionStorage.getIt
         let from = arr[pari];
         let to = arr[dispari];
         this.move(to, from);
+        let pezzo = this.getPieceCodes(to[0], to[1]);
+        if (pezzo == ChessPiecesCodes.WhitePawn && to[1] == "8") {
+          console.log(this.boardPosition)
+          this.boardPosition[to].name = ChessPieces.WhiteQueen;
+        }
+        if (pezzo == ChessPiecesCodes.BlackPawn && to[1] == "1") {
+          console.log(this.boardPosition)
+          this.boardPosition[to].name = ChessPieces.BlackQueen;
+        }
         pari = pari + 2;
         dispari = dispari + 2;
       }
@@ -295,18 +246,24 @@ this.socket.emit("chat private", `${username}: ${message}`, sessionStorage.getIt
     })
 
     //set the players
-    this.socket.on("setPlayer", (white, black) => {
+    this.socket.on("setPlayer", (white, black, wscore, bscore) => {
       if (this.isWhite) {
         this.playerWhite = sessionStorage.getItem("username")!;
         this.playerBlack = black;
+        this.w_score = wscore;
+        this.b_score = bscore;
       }
       if (this.isBlack) {
         this.playerWhite = white;
         this.playerBlack = sessionStorage.getItem("username")!;
+        this.w_score = wscore;
+        this.b_score = bscore;
       }
       if (this.isWatcher) {
         this.playerBlack = black;
         this.playerWhite = white;
+        this.w_score = wscore;
+        this.b_score = bscore;
       }
     })
 
@@ -334,6 +291,7 @@ this.socket.emit("chat private", `${username}: ${message}`, sessionStorage.getIt
     this.socket.on("moveFrontEnd", (new_p, old_p) => {
       this.counter++;
       this.move(new_p, old_p);
+      console.log(new_p[1]);
       let piece = this.getPieceCodes(new_p[0], new_p[1]);
       if (piece == ChessPiecesCodes.WhiteKing && old_p == "E1" && new_p == "G1") {
         this.move("F1", "H1");
@@ -355,6 +313,14 @@ this.socket.emit("chat private", `${username}: ${message}`, sessionStorage.getIt
         this.history.push(this.counter + piece + " O-O-O ");
         this.socket.emit("arrocco", "D8", "A8", sessionStorage.getItem("username"));
       }
+      if (piece == ChessPiecesCodes.WhitePawn && new_p[1] == "8") {
+        console.log(this.boardPosition)
+        this.boardPosition[new_p].name = ChessPieces.WhiteQueen;
+      }
+      if (piece == ChessPiecesCodes.BlackPawn && new_p[1] == "1") {
+        console.log(this.boardPosition)
+        this.boardPosition[new_p].name = ChessPieces.BlackQueen;
+      }
       else {
         this.history.push(this.counter + piece + new_p + "  ");
       }
@@ -367,6 +333,62 @@ this.socket.emit("chat private", `${username}: ${message}`, sessionStorage.getIt
       this.isFinish = bool;
       this.socket.emit("exit", sessionStorage.getItem("username"));
       this.socket.close();
+    })
+
+    this.socket.on("setWinner", (turn) => {
+      if (turn == "black") {
+        this.winner = this.playerWhite;
+      }
+      if (turn == "white") {
+        this.winner = this.playerBlack;
+      }
+
+      if (sessionStorage.getItem("username") == this.playerBlack || sessionStorage.getItem("username") == this.playerWhite) {
+        if (sessionStorage.getItem("username") == this.winner) {
+          let score = parseInt(sessionStorage.getItem('score')!)
+          score += 10;
+          sessionStorage.setItem('score', score.toString());
+        }
+        else {
+          let score = parseInt(sessionStorage.getItem('score')!)
+          if (score >= 10) {
+            score -= 10;
+            sessionStorage.setItem('score', score.toString());
+          };
+        }
+      }
+
+    })
+
+    this.socket.on("abbandono", (user) => {
+      console.log(user);
+      if (user == this.playerBlack) {
+        this.winner = this.playerWhite;
+      }
+      if (user == this.playerWhite) {
+        this.winner = this.playerBlack;
+      }
+
+
+      if (sessionStorage.getItem("username") == this.playerBlack || sessionStorage.getItem("username") == this.playerWhite) {
+        if (sessionStorage.getItem("username") == this.winner) {
+          let score = parseInt(sessionStorage.getItem('score')!)
+          score += 10;
+          sessionStorage.setItem('score', score.toString());
+        }
+        else {
+          let score = parseInt(sessionStorage.getItem('score')!)
+          if (score >= 10) {
+            score -= 10;
+            sessionStorage.setItem('score', score.toString());
+          }
+
+        }
+      }
+    })
+
+    this.socket.on("draw", () => {
+      this.isDraw = true;
     })
 
     // Event emitted on not found error
