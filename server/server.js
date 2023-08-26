@@ -41,6 +41,23 @@ app.get("/getScore/:username", async (req, res) => {
     else { res.send("bad request").status(400); }
 });
 
+
+app.get("/setScore/:username/:score", async (req, res) => {
+    const user = req.params.username;
+
+    const score = req.params.score;
+
+    const player = { username: user };
+    if (user) {
+        await models.findOneAndUpdate({ username: user }, { score: score });
+        res.send("update").status(200);
+    }
+    else {
+        res.send("bad request").status(400);
+    }
+})
+
+
 app.post("/insertUser", async (req, res) => {
     const user = req.body;
     if (user) {
@@ -200,11 +217,25 @@ io.on("connection", (socket) => {
         }
     })
 
-    socket.on("exit", (user) => {
+    socket.on("exit", async (user) => {
         if (user == black || user == white) {
+            console.log(user);
             main--;
-            io.emit("abbandono", user);
+            io.sockets.emit("abbandono", user);
             io.sockets.emit("setFinish", true);
+            if (user == black) {
+                if (b_score >= 10) {
+                    b_score -= 10;
+                    await models.findOneAndUpdate({ username: black }, { score: b_score });
+                }
+            }
+            else if (user == white) {
+                if (w_score >= 10) {
+                    w_score -= 10;
+                    await models.findOneAndUpdate({ username: white }, { score: w_score });
+                }
+            }
+
         }
     })
 
@@ -217,7 +248,6 @@ io.on("connection", (socket) => {
             players_c = 0;
             history = [];
             arr_story = [];
-
             io.sockets.emit("setFinish", true);
         }
         console.log("A client has disconnected");

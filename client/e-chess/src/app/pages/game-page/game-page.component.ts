@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { io } from 'socket.io-client';
 import { ChessPieces, ChessPiecesCodes } from 'src/app/models/chess-pieces';
 import { initialBoardPosition } from 'src/app/models/initial-board-position';
+import { HttpClient } from '@angular/common/http';
 
 
 @Component({
@@ -13,13 +14,17 @@ import { initialBoardPosition } from 'src/app/models/initial-board-position';
 })
 export class GamePageComponent implements OnInit, OnDestroy {
 
+
+
   ngOnInit(): void {
     this.boardPosition = JSON.parse(JSON.stringify(initialBoardPosition));
     this.connectWebSocket();
   }
 
   ngOnDestroy(): void {
-    this.socket.emit("exit", sessionStorage.getItem("username"));
+    if (this.playerBlack != "" && this.playerWhite != "") {
+      this.socket.emit("exit", sessionStorage.getItem("username"));
+    }
     this.socket.close();
     this.router.navigate(["/home"]);
   }
@@ -61,7 +66,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
   counter: number = 0;
   boardPosition: any;
 
-  constructor(private router: Router) { }
+  constructor(private router: Router, private http: HttpClient) { }
 
   getPieceCodes(row: any, col: any) {
     let posVal = row + col;
@@ -313,6 +318,9 @@ this.socket.emit("chat private", `${username}: ${message}`, sessionStorage.getIt
         this.history.push(this.counter + piece + " O-O-O ");
         this.socket.emit("arrocco", "D8", "A8", sessionStorage.getItem("username"));
       }
+      else {
+        this.history.push(this.counter + piece + new_p + "  ");
+      }
       if (piece == ChessPiecesCodes.WhitePawn && new_p[1] == "8") {
         console.log(this.boardPosition)
         this.boardPosition[new_p].name = ChessPieces.WhiteQueen;
@@ -321,9 +329,7 @@ this.socket.emit("chat private", `${username}: ${message}`, sessionStorage.getIt
         console.log(this.boardPosition)
         this.boardPosition[new_p].name = ChessPieces.BlackQueen;
       }
-      else {
-        this.history.push(this.counter + piece + new_p + "  ");
-      }
+
       this.socket.emit("refreshHistory", this.history, this.counter);
       console.log("history" + this.history);
       this.moves = [];
@@ -331,7 +337,7 @@ this.socket.emit("chat private", `${username}: ${message}`, sessionStorage.getIt
 
     this.socket.on("setFinish", (bool) => {
       this.isFinish = bool;
-      this.socket.emit("exit", sessionStorage.getItem("username"));
+      //this.socket.emit("exit", sessionStorage.getItem("username"));
       this.socket.close();
     })
 
@@ -348,19 +354,21 @@ this.socket.emit("chat private", `${username}: ${message}`, sessionStorage.getIt
           let score = parseInt(sessionStorage.getItem('score')!)
           score += 10;
           sessionStorage.setItem('score', score.toString());
+          this.http.get("http://localhost:8080/setScore/" + sessionStorage.getItem("username") + "/" + sessionStorage.getItem("score")).subscribe();
         }
         else {
           let score = parseInt(sessionStorage.getItem('score')!)
           if (score >= 10) {
             score -= 10;
             sessionStorage.setItem('score', score.toString());
+            this.http.get("http://localhost:8080/setScore/" + sessionStorage.getItem("username") + "/" + sessionStorage.getItem("score")).subscribe();
           };
         }
       }
 
     })
 
-    this.socket.on("abbandono", (user) => {
+    this.socket.on("abbandono", async (user) => {
       console.log(user);
       if (user == this.playerBlack) {
         this.winner = this.playerWhite;
@@ -375,12 +383,14 @@ this.socket.emit("chat private", `${username}: ${message}`, sessionStorage.getIt
           let score = parseInt(sessionStorage.getItem('score')!)
           score += 10;
           sessionStorage.setItem('score', score.toString());
+          this.http.get("http://localhost:8080/setScore/" + sessionStorage.getItem("username") + "/" + sessionStorage.getItem("score")).subscribe();
         }
         else {
           let score = parseInt(sessionStorage.getItem('score')!)
           if (score >= 10) {
             score -= 10;
             sessionStorage.setItem('score', score.toString());
+            this.http.get("http://localhost:8080/setScore/" + sessionStorage.getItem("username") + "/" + sessionStorage.getItem("score")).subscribe();
           }
 
         }
@@ -395,9 +405,6 @@ this.socket.emit("chat private", `${username}: ${message}`, sessionStorage.getIt
     this.socket.on("connect_error", () => {
       alert("Socket closed");
     });
-
-
-
 
   }
 }
