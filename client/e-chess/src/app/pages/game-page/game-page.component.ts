@@ -14,8 +14,6 @@ import { HttpClient } from '@angular/common/http';
 })
 export class GamePageComponent implements OnInit, OnDestroy {
 
-
-
   ngOnInit(): void {
     this.boardPosition = JSON.parse(JSON.stringify(initialBoardPosition));
     this.connectWebSocket();
@@ -66,6 +64,66 @@ export class GamePageComponent implements OnInit, OnDestroy {
   counter: number = 0;
   boardPosition: any;
 
+
+
+  b_timeLeft: number = 600;
+  b_min: number = Math.floor(this.b_timeLeft / 60);
+  b_sec: number = this.b_timeLeft - this.b_min * 60;
+  b_timer: string = this.b_min + ":" + this.b_sec.toString().concat('0');
+  w_timeLeft: number = 600;
+  w_min: number = Math.floor(this.w_timeLeft / 60);
+  w_sec: number = this.w_timeLeft - this.w_min * 60;
+  w_timer: string = this.w_min + ":" + this.w_sec.toString().concat('0');
+
+  interval: any;
+
+
+  w_startTimer() {
+    this.interval = setInterval(() => {
+      if (this.w_timeLeft > 0) {
+        this.w_timeLeft--;
+        this.w_min = Math.floor(this.w_timeLeft / 60);
+        this.w_sec = this.w_timeLeft - this.w_min * 60;
+        if (this.w_sec < 10) {
+          this.w_timer = this.w_min + ":" + this.w_sec.toString().padStart(2, '0');
+        } else {
+          this.w_timer = this.w_min + ":" + this.w_sec;
+        }
+
+
+      } else {
+        this.socket.emit("exit", this.playerWhite);
+      }
+    }, 2000)
+  }
+
+  w_pauseTimer() {
+    clearInterval(this.interval);
+  }
+
+  b_startTimer() {
+    this.interval = setInterval(() => {
+      if (this.b_timeLeft > 0) {
+        this.b_timeLeft--;
+        this.b_min = Math.floor(this.b_timeLeft / 60);
+        this.b_sec = this.b_timeLeft - this.b_min * 60;
+        if (this.b_sec < 10) {
+          this.b_timer = this.b_min + ":" + this.b_sec.toString().padStart(2, '0');
+        } else {
+          this.b_timer = this.b_min + ":" + this.b_sec;
+        }
+
+
+      } else {
+        this.socket.emit("exit", this.playerBlack);
+      }
+    }, 2000)
+  }
+
+  b_pauseTimer() {
+    clearInterval(this.interval);
+  }
+
   constructor(private router: Router, private http: HttpClient) { }
 
   getPieceCodes(row: any, col: any) {
@@ -96,9 +154,11 @@ export class GamePageComponent implements OnInit, OnDestroy {
 
         if (this.moves.includes(this.cellValue)) {
           //this.move(this.cellValue, this.selectedElem);
+
           this.socket.emit("movePiece", this.cellValue, this.selectedElem, sessionStorage.getItem("username"));
 
         }
+
         this.clearSelectedCells();
         this.selectedElem = "";
       }
@@ -156,6 +216,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
     /*const username = sessionStorage.getItem('username');
 const message = "private message";
 this.socket.emit("chat private", `${username}: ${message}`, sessionStorage.getItem("username"));*/
+
   }
 
   clearSelectedCells() {
@@ -212,6 +273,7 @@ this.socket.emit("chat private", `${username}: ${message}`, sessionStorage.getIt
     this.socket.on("setWhite", (bool) => {
       console.log(sessionStorage.getItem("username") + "is white");
       this.isWhite = bool;
+      // this.startTimer();
 
     })
 
@@ -294,7 +356,14 @@ this.socket.emit("chat private", `${username}: ${message}`, sessionStorage.getIt
     });
 
     this.socket.on("moveFrontEnd", (new_p, old_p) => {
+      if (this.counter % 2 == 0) {
+        this.socket.emit("change_w");
+      }
+      else if (this.counter % 2 == 1) {
+        this.socket.emit("change_b");
+      }
       this.counter++;
+      //this.pauseTimer();
       this.move(new_p, old_p);
       console.log(new_p[1]);
       let piece = this.getPieceCodes(new_p[0], new_p[1]);
@@ -370,6 +439,8 @@ this.socket.emit("chat private", `${username}: ${message}`, sessionStorage.getIt
 
     this.socket.on("abbandono", async (user) => {
       console.log(user);
+      this.b_pauseTimer();
+      this.w_pauseTimer();
       if (user == this.playerBlack) {
         this.winner = this.playerWhite;
       }
@@ -397,8 +468,28 @@ this.socket.emit("chat private", `${username}: ${message}`, sessionStorage.getIt
       }
     })
 
+    this.socket.on("start_w_timer", () => {
+      this.w_startTimer();
+    })
+
+    this.socket.on("change", () => {
+      this.w_pauseTimer();
+      this.b_startTimer();
+    })
+
+    this.socket.on("change2", () => {
+      this.b_pauseTimer();
+      this.w_startTimer();
+    })
+
     this.socket.on("draw", () => {
       this.isDraw = true;
+    })
+
+    this.socket.on("invalidgame", () => {
+      alert("invalid game");
+      //this.isFinish = true;
+      this.router.navigate(["/home"]);
     })
 
     // Event emitted on not found error

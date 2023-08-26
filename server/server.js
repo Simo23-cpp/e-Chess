@@ -119,6 +119,7 @@ io.on("connection", (socket) => {
         socket.emit("setBlack", true);
         game = new jsChessEngine.Game();
         game.printToConsole();
+        io.sockets.emit("start_w_timer");
         main++;
     }
     else {
@@ -138,6 +139,9 @@ io.on("connection", (socket) => {
         if (player_arr.length == 2) {
             black = player_arr[1];
             b_score = score
+            if (black === white) {
+                io.sockets.emit("invalidgame");
+            }
 
         }
         if (player_arr.length >= 2) {
@@ -237,6 +241,14 @@ io.on("connection", (socket) => {
             }
 
         }
+    })
+
+    socket.on("change_w", () => {
+        io.sockets.emit("change");
+    })
+
+    socket.on("change_b", () => {
+        io.sockets.emit("change2");
     })
 
 
