@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
+const global = require("./config");
 
-
-const mongoDB = "mongodb://127.0.0.1:27017/test";
+const mongoDB = global.DB_CONNECTION;
 
 
 async function main() {

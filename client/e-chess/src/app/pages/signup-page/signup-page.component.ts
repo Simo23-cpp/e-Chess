@@ -51,7 +51,7 @@ export class SignupPageComponent implements OnInit {
         return;
       }
       else {
-        this.http.post("http://localhost:8080/insertUser", { "name": value.name, "surname": value.surname, "username": value.username, "password": value.password, "score": 0 })
+        this.http.post("http://localhost:8080/insertUser", { "name": value.name, "surname": value.surname, "username": value.username, "password": value.password, "score": 100 })
           .subscribe((res) => {
             if (res) {
               this.submitForm.reset();

@@ -1,4 +1,5 @@
 const db_conncection_f = require("./db");
+const global = require("./config");
 const models = require("./model");
 const express = require("express");
 var cors = require('cors');
@@ -8,7 +9,7 @@ const { Server } = require("socket.io");
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
     cors: {
-        origin: "http://localhost:4200"
+        origin: "*"
     }
 });
 
@@ -88,11 +89,7 @@ app.post("/login", async (req, res) => {
 const jsChessEngine = require('js-chess-engine');
 var game;
 
-//game.printToConsole();
-
-
-
-//socket.io handle
+//socket.io var
 var contatore;
 var arr_story;
 var history = [];
@@ -104,6 +101,8 @@ var white;
 var black;
 var w_score;
 var b_score;
+
+//socket.io handler
 io.on("connection", (socket) => {
 
 
@@ -118,7 +117,7 @@ io.on("connection", (socket) => {
     else if (players == 1) {
         socket.emit("setBlack", true);
         game = new jsChessEngine.Game();
-        game.printToConsole();
+        //game.printToConsole(); command for print the game to console
         io.sockets.emit("start_w_timer");
         main++;
     }
@@ -159,32 +158,31 @@ io.on("connection", (socket) => {
 
     socket.on("chat message", (message) => {
         message = message.toString();
-        console.log("Received:", message);
         io.sockets.emit("chat message", message);
     });
 
     socket.on("PossibleMovesReq", (position, user) => {
         if (user == white || user == black) {
             message = game.moves(position);
-            console.log(message);
+
             socket.emit("chat private", message);
         }
     })
 
     socket.on("movePiece", (new_p, old_p, user) => {
         if (user == white || user == black) {
-            console.log("move");
+
             history.push(old_p);
             history.push(new_p);
-            // game.removePiece(new_p);
+
             game.move(old_p, new_p);
-            console.log(history);
-            game.printToConsole();
+
+            //game.printToConsole();
             io.sockets.emit("moveFrontEnd", new_p, old_p);
             let checkmate = game.exportJson().checkMate;
             let isFinish = game.exportJson().isFinished;
-            console.log("isFinish " + isFinish);
-            console.log(checkmate);
+
+
             if (checkmate && isFinish) {
                 let winner = game.exportJson().turn;
                 io.sockets.emit("setWinner", winner);
@@ -196,16 +194,6 @@ io.on("connection", (socket) => {
         }
     })
 
-    /*/
-        socket.on("chat private", (message, user) => {
-            if (user == white || user == black) {
-                console.log(player_arr);
-                console.log("Received:", message);
-                io.sockets.emit("chat private", message);
-            }
-    
-        })
-    */
 
     socket.on("refreshHistory", (story, counter) => {
         arr_story = story;
@@ -214,16 +202,16 @@ io.on("connection", (socket) => {
 
     socket.on("arrocco", (new_p, old_p, user) => {
         if (user == white) {
-            console.log("arrocco" + history);
+
             history.push(old_p);
             history.push(new_p);
-            console.log("arrocco" + history);
+
         }
     })
 
     socket.on("exit", async (user) => {
         if (user == black || user == white) {
-            console.log(user);
+
             main--;
             io.sockets.emit("abbandono", user);
             io.sockets.emit("setFinish", true);
@@ -271,13 +259,13 @@ io.on("connection", (socket) => {
 
 
 
-httpServer.listen(3000, () => {
+httpServer.listen(global.SOCKET_IO_PORT, () => {
     console.log("ws server listen on port 3000");
 });
 
-app.listen(8080, () => {
+app.listen(global.SERVER_PORT, () => {
     console.log("Server listen on port 8080");
 });
 
-//inserimento dell'engine per il corretto controllo della partita
+
 
