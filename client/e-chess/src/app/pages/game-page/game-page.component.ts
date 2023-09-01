@@ -66,11 +66,11 @@ export class GamePageComponent implements OnInit, OnDestroy {
 
 
 
-  b_timeLeft: number = 600;
+  b_timeLeft: number = 300;
   b_min: number = Math.floor(this.b_timeLeft / 60);
   b_sec: number = this.b_timeLeft - this.b_min * 60;
   b_timer: string = this.b_min + ":" + this.b_sec.toString().concat('0');
-  w_timeLeft: number = 600;
+  w_timeLeft: number = 300;
   w_min: number = Math.floor(this.w_timeLeft / 60);
   w_sec: number = this.w_timeLeft - this.w_min * 60;
   w_timer: string = this.w_min + ":" + this.w_sec.toString().concat('0');
@@ -94,7 +94,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
       } else {
         this.socket.emit("exit", this.playerWhite);
       }
-    }, 2000)
+    }, 1600)
   }
 
   w_pauseTimer() {
@@ -117,7 +117,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
       } else {
         this.socket.emit("exit", this.playerBlack);
       }
-    }, 2000)
+    }, 1600)
   }
 
   b_pauseTimer() {
