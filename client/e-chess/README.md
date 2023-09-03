@@ -1,27 +1,73 @@
-# EChess
+# e-Chess
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 16.1.7.
+e-Chess è una piattaforma web che permette di giocare online a scacchi contro altri giocatori. <br>
+Gli utenti devono registarsi per poter giocare, ad ogni utente sarà assegnato un punteggio che aumenterà in base al numero di vittorie.
 
-## Development server
+Per la realizzazione del progetto sono state utilizzate le seguenti tecnologie:
+<ul>
+  <li>Angular </li>
+  <li>NodeJS</li>
+  <li>Socket.IO</li>
+  <li>MongoDB</li>
+</ul>
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+## Prerequisiti
 
-## Code scaffolding
+* installare NodeJS versione 18.16.0
+https://nodejs.org/en/download
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+* installare Angular https://angular.io/guide/setup-local
 
-## Build
+* installare MongoDB https://www.mongodb.com/try/download/community
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
 
-## Running unit tests
+## Configurazione
+Scaricare la repository con il comando 
+```shell
+git clone https://github.com/Simo23-cpp/e-Chess.git
+```
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+Creare un database MongoDB senza collezioni<br>
 
-## Running end-to-end tests
+Inserire nel file server/config.js del backend la stringa  di connessione seguita dal nome del database<br>
+es: "mongodb://127.0.0.1:27017/e-chess"
 
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
+Dopo installare le dipendenze da terminale
 
-## Further help
+per il backend
+```shell
+$ cd server
+$ npm install
+```
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+
+per il frontend
+
+```shell
+$ cd client/e-chess
+$ npm install
+```
+
+### Opzionale
+Settare le porte del server e di socket.io nel file server/config.js o usare quelle presenti di default.
+
+Qualora le porte venissero cambiate:<br>
+settare nel frontend client/e-chess/src/app/config.ts la stringa di connessione alla websocket e il server path
+
+## Avvio
+
+avviare il server con i comandi:
+
+```shell
+$ cd server
+$ node server.js
+```
+
+avviare il frontend con i comandi:
+
+```shell
+$ cd client/e-chess
+$ ng serve
+```
+
+aprire il browser e digitare http://localhost:4200/ nella barra di ricerca
