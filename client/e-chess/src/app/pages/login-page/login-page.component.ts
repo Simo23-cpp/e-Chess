@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { SERVER_PATH } from 'src/app/config';
 
 @Component({
   selector: 'app-login-page',
@@ -28,8 +29,7 @@ export class LoginPageComponent implements OnInit {
 
   onLogin() {
     const value = this.loginForm.value;
-    console.log('login');
-    this.http.post("http://localhost:8080/login", { "username": value.username, "password": value.password })
+    this.http.post(SERVER_PATH + "login", { "username": value.username, "password": value.password })
       .subscribe((res) => {
         if (res) {
           this.loginForm.reset();
@@ -51,7 +51,6 @@ export class LoginPageComponent implements OnInit {
 
 
   signup() {
-    console.log('signup');
     this.router.navigate(['/signup']);
   }
 

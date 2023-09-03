@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { SERVER_PATH } from 'src/app/config';
 
 export interface ScoreResponse {
   _id: string,
@@ -13,8 +14,7 @@ export interface ScoreResponse {
   styleUrls: ['./home-page.component.css']
 })
 export class HomePageComponent implements OnInit {
-  timeGame: number = 0;
-  showAlert: boolean = false;
+
   username: any;
   score: any;
 
@@ -22,7 +22,7 @@ export class HomePageComponent implements OnInit {
 
   ngOnInit(): void {
     this.username = sessionStorage.getItem('username');
-    this.http.get<ScoreResponse[]>("http://localhost:8080/getScore/" + this.username).subscribe((res) => {
+    this.http.get<ScoreResponse[]>(SERVER_PATH + "getScore/" + this.username).subscribe((res) => {
       this.score = res[0].score;
       sessionStorage.setItem("score", this.score);
     })
@@ -34,7 +34,6 @@ export class HomePageComponent implements OnInit {
 
 
   logout() {
-    console.log("logout");
     this.router.navigate(["/login"]);
   }
 

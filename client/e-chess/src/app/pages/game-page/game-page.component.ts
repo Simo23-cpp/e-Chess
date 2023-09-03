@@ -5,6 +5,7 @@ import { io } from 'socket.io-client';
 import { ChessPieces, ChessPiecesCodes } from 'src/app/models/chess-pieces';
 import { initialBoardPosition } from 'src/app/models/initial-board-position';
 import { HttpClient } from '@angular/common/http';
+import { SERVER_PATH, SOCKET_IO_PATH } from 'src/app/config';
 
 
 @Component({
@@ -30,42 +31,57 @@ export class GamePageComponent implements OnInit, OnDestroy {
 
   letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
   numbers = [8, 7, 6, 5, 4, 3, 2, 1];
-  /*/possibleMoves: string[] = [];
-  consumableMoves: string[] = [];*/
   selectedElem: any = '';
   isboardRotated: boolean = false;
   msg = new FormControl('');
+
   //boolean for handle the role
   isBlack = false;
   isWhite = false;
   isWatcher = false;
+
   //players
   playerWhite: string = "";
   playerBlack: string = "";
+
   //other score
   w_score: any;
   b_score: any;
+
+  //var of victory modal setup
   victory: string = "+10";
   lose: string = "-10";
   winner: any
+
   //array for chat
   chat_message: string[] = [];
+
+  //history of moves
   history: string[] = [];
+
   //array for moves
   moves: string[] = [];
+
+  //piece
   cellValue: any;
+
   //loader
   isLoading: boolean = true;
+
   //modal for game finish
   isFinish: boolean = false;
   isDraw: boolean = false;
-  //socket.io socket
-  socket = io("ws://localhost:3000");
+
+  //socket.io socket setup
+  socket = io(SOCKET_IO_PATH);
+
+  //turn
   counter: number = 0;
+
+  //board
   boardPosition: any;
 
-
-
+  //timer
   b_timeLeft: number = 300;
   b_min: number = Math.floor(this.b_timeLeft / 60);
   b_sec: number = this.b_timeLeft - this.b_min * 60;
@@ -130,75 +146,44 @@ export class GamePageComponent implements OnInit, OnDestroy {
     let posVal = row + col;
     if (this.boardPosition[posVal] === '') return;
     let pieceName = ChessPieces[this.boardPosition[posVal].name]
-    //console.log(pieceName)
     return ChessPiecesCodes[pieceName];
   }
 
   selectCell(row: any, col: number) {
-
-    console.log(this.boardPosition)
-
-    console.log("mosse" + this.moves);
     this.cellValue = row + col;
     let piece = this.getPieceCodes(row, col);
     if (this.isWhite && (this.counter % 2) == 0) {
       if (piece != undefined && (piece == ChessPiecesCodes.WhitePawn || piece == ChessPiecesCodes.WhiteRook || piece == ChessPiecesCodes.WhiteQueen || piece == ChessPiecesCodes.WhiteKnight || piece == ChessPiecesCodes.WhiteKing || piece == ChessPiecesCodes.WhiteBishop)) {
-        console.log(this.getPieceCodes(row, col))
         this.socket.emit("PossibleMovesReq", this.cellValue, sessionStorage.getItem("username"));
-
-
       }
       else {
-
-
-
         if (this.moves.includes(this.cellValue)) {
-          //this.move(this.cellValue, this.selectedElem);
-
           this.socket.emit("movePiece", this.cellValue, this.selectedElem, sessionStorage.getItem("username"));
-
         }
-
         this.clearSelectedCells();
         this.selectedElem = "";
       }
-
     }
 
     if (this.isBlack && (this.counter % 2) == 1) {
       if (piece != undefined && (piece == ChessPiecesCodes.BlackPawn || piece == ChessPiecesCodes.BlackRook || piece == ChessPiecesCodes.BlackQueen || piece == ChessPiecesCodes.BlackKnight || piece == ChessPiecesCodes.BlackKing || piece == ChessPiecesCodes.BlackBishop)) {
-        console.log("pezzo" + this.getPieceCodes(row, col))
         this.socket.emit("PossibleMovesReq", this.cellValue, sessionStorage.getItem("username"));
       }
       else {
-
-
-
         if (this.moves.includes(this.cellValue)) {
-          //this.move(this.cellValue, this.selectedElem);
           this.socket.emit("movePiece", this.cellValue, this.selectedElem, sessionStorage.getItem("username"));
-
-
         }
         this.clearSelectedCells();
         this.selectedElem = "";
       }
-
     }
-
-
-    // pawn
     this.selectedElem = this.cellValue;
-    /* let pieceObj = initialBoardPosition[this.cellValue];*/
-
-
   }
 
   move(n_position: any, o_position: any) {
     this.boardPosition[n_position] =
       this.boardPosition[o_position];
     this.boardPosition[o_position] = '';
-
     this.selectedElem = '';
     this.clearSelectedCells();
   }
@@ -213,10 +198,6 @@ export class GamePageComponent implements OnInit, OnDestroy {
       this.numbers.sort((a, b) => 0 - (a > b ? -1 : 1));
     }
     this.isboardRotated = !this.isboardRotated;
-    /*const username = sessionStorage.getItem('username');
-const message = "private message";
-this.socket.emit("chat private", `${username}: ${message}`, sessionStorage.getItem("username"));*/
-
   }
 
   clearSelectedCells() {
@@ -229,8 +210,6 @@ this.socket.emit("chat private", `${username}: ${message}`, sessionStorage.getIt
       el.classList.remove('possible-move-class');
     });
   }
-
-
 
   //funciotn for modal
   exit() {
@@ -247,43 +226,28 @@ this.socket.emit("chat private", `${username}: ${message}`, sessionStorage.getIt
   }
 
   //funciotn for close modal
-
   close() {
     this.isFinish = false;
     this.router.navigate(["/home"])
   }
-
-  displayMessage(message: any) {
-    console.log(message);
-
-  }
-
-
 
   connectWebSocket() {
 
     // Event emitted on successful connection
     this.socket.on("connected", (message: any) => {
       this.socket.emit("sendUsername", sessionStorage.getItem("username"), sessionStorage.getItem("score"));
-
-      this.displayMessage(message);
-
     });
 
     this.socket.on("setWhite", (bool) => {
-      console.log(sessionStorage.getItem("username") + "is white");
       this.isWhite = bool;
-      // this.startTimer();
-
     })
 
     this.socket.on("setBlack", (bool) => {
-      console.log(sessionStorage.getItem("username") + "is black");
+      this.rotateBoard();
       this.isBlack = bool;
     })
 
     this.socket.on("setWatcher", (bool, arr, story, contatore) => {
-      console.log(sessionStorage.getItem("username") + "is watcher");
       this.isWatcher = bool;
       let pari = 0;
       let dispari = 1;
@@ -293,11 +257,9 @@ this.socket.emit("chat private", `${username}: ${message}`, sessionStorage.getIt
         this.move(to, from);
         let pezzo = this.getPieceCodes(to[0], to[1]);
         if (pezzo == ChessPiecesCodes.WhitePawn && to[1] == "8") {
-          console.log(this.boardPosition)
           this.boardPosition[to].name = ChessPieces.WhiteQueen;
         }
         if (pezzo == ChessPiecesCodes.BlackPawn && to[1] == "1") {
-          console.log(this.boardPosition)
           this.boardPosition[to].name = ChessPieces.BlackQueen;
         }
         pari = pari + 2;
@@ -305,7 +267,7 @@ this.socket.emit("chat private", `${username}: ${message}`, sessionStorage.getIt
       }
       this.history = story;
       this.counter = contatore;
-      alert("you are watcher, you can only watch the game at this moment");
+      alert("You are watcher, you can only watch the game at this moment");
     })
 
     this.socket.on("setLoader", (bool) => {
@@ -336,7 +298,6 @@ this.socket.emit("chat private", `${username}: ${message}`, sessionStorage.getIt
 
     // Event emitted on message received
     this.socket.on("chat message", (message: any) => {
-      console.log("Received:", message);
       this.chat_message.push(message);
     });
 
@@ -345,13 +306,10 @@ this.socket.emit("chat private", `${username}: ${message}`, sessionStorage.getIt
     //emitted only for players that play
     this.socket.on("chat private", (message: any) => {
       this.moves = message;
-      console.log("moves" + this.moves);
       this.clearSelectedCells();
       this.moves.forEach((element: any) => {
-        console.log(element);
         let elem = document.getElementById(element) as HTMLElement;
         elem.classList.add('possible-move-class');
-
       });
     });
 
@@ -363,9 +321,7 @@ this.socket.emit("chat private", `${username}: ${message}`, sessionStorage.getIt
         this.socket.emit("change_b");
       }
       this.counter++;
-      //this.pauseTimer();
       this.move(new_p, old_p);
-      console.log(new_p[1]);
       let piece = this.getPieceCodes(new_p[0], new_p[1]);
       if (piece == ChessPiecesCodes.WhiteKing && old_p == "E1" && new_p == "G1") {
         this.move("F1", "H1");
@@ -391,22 +347,18 @@ this.socket.emit("chat private", `${username}: ${message}`, sessionStorage.getIt
         this.history.push(this.counter + piece + new_p + "  ");
       }
       if (piece == ChessPiecesCodes.WhitePawn && new_p[1] == "8") {
-        console.log(this.boardPosition)
         this.boardPosition[new_p].name = ChessPieces.WhiteQueen;
       }
       if (piece == ChessPiecesCodes.BlackPawn && new_p[1] == "1") {
-        console.log(this.boardPosition)
         this.boardPosition[new_p].name = ChessPieces.BlackQueen;
       }
 
       this.socket.emit("refreshHistory", this.history, this.counter);
-      console.log("history" + this.history);
       this.moves = [];
     })
 
     this.socket.on("setFinish", (bool) => {
       this.isFinish = bool;
-      //this.socket.emit("exit", sessionStorage.getItem("username"));
       this.socket.close();
     })
 
@@ -423,14 +375,14 @@ this.socket.emit("chat private", `${username}: ${message}`, sessionStorage.getIt
           let score = parseInt(sessionStorage.getItem('score')!)
           score += 10;
           sessionStorage.setItem('score', score.toString());
-          this.http.get("http://localhost:8080/setScore/" + sessionStorage.getItem("username") + "/" + sessionStorage.getItem("score")).subscribe();
+          this.http.get(SERVER_PATH + "setScore/" + sessionStorage.getItem("username") + "/" + sessionStorage.getItem("score")).subscribe();
         }
         else {
           let score = parseInt(sessionStorage.getItem('score')!)
           if (score >= 10) {
             score -= 10;
             sessionStorage.setItem('score', score.toString());
-            this.http.get("http://localhost:8080/setScore/" + sessionStorage.getItem("username") + "/" + sessionStorage.getItem("score")).subscribe();
+            this.http.get(SERVER_PATH + "setScore/" + sessionStorage.getItem("username") + "/" + sessionStorage.getItem("score")).subscribe();
           };
         }
       }
@@ -438,7 +390,6 @@ this.socket.emit("chat private", `${username}: ${message}`, sessionStorage.getIt
     })
 
     this.socket.on("abbandono", async (user) => {
-      console.log(user);
       this.b_pauseTimer();
       this.w_pauseTimer();
       if (user == this.playerBlack) {
@@ -447,23 +398,20 @@ this.socket.emit("chat private", `${username}: ${message}`, sessionStorage.getIt
       if (user == this.playerWhite) {
         this.winner = this.playerBlack;
       }
-
-
       if (sessionStorage.getItem("username") == this.playerBlack || sessionStorage.getItem("username") == this.playerWhite) {
         if (sessionStorage.getItem("username") == this.winner) {
           let score = parseInt(sessionStorage.getItem('score')!)
           score += 10;
           sessionStorage.setItem('score', score.toString());
-          this.http.get("http://localhost:8080/setScore/" + sessionStorage.getItem("username") + "/" + sessionStorage.getItem("score")).subscribe();
+          this.http.get(SERVER_PATH + "setScore/" + sessionStorage.getItem("username") + "/" + sessionStorage.getItem("score")).subscribe();
         }
         else {
           let score = parseInt(sessionStorage.getItem('score')!)
           if (score >= 10) {
             score -= 10;
             sessionStorage.setItem('score', score.toString());
-            this.http.get("http://localhost:8080/setScore/" + sessionStorage.getItem("username") + "/" + sessionStorage.getItem("score")).subscribe();
+            this.http.get(SERVER_PATH + "setScore/" + sessionStorage.getItem("username") + "/" + sessionStorage.getItem("score")).subscribe();
           }
-
         }
       }
     })
@@ -488,7 +436,6 @@ this.socket.emit("chat private", `${username}: ${message}`, sessionStorage.getIt
 
     this.socket.on("invalidgame", () => {
       alert("invalid game");
-      //this.isFinish = true;
       this.router.navigate(["/home"]);
     })
 

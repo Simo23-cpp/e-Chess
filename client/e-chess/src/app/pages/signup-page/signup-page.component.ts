@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-
+import { SERVER_PATH } from 'src/app/config';
 
 @Component({
   selector: 'app-signup-page',
@@ -43,7 +43,7 @@ export class SignupPageComponent implements OnInit {
       return;
     }
 
-    this.http.get("http://localhost:8080/getUsername/" + value.username).subscribe((res) => {
+    this.http.get(SERVER_PATH + "getUsername/" + value.username).subscribe((res) => {
 
       if (res) {
         this.usernameExist = true;
@@ -51,7 +51,7 @@ export class SignupPageComponent implements OnInit {
         return;
       }
       else {
-        this.http.post("http://localhost:8080/insertUser", { "name": value.name, "surname": value.surname, "username": value.username, "password": value.password, "score": 100 })
+        this.http.post(SERVER_PATH + "insertUser", { "name": value.name, "surname": value.surname, "username": value.username, "password": value.password, "score": 100 })
           .subscribe((res) => {
             if (res) {
               this.submitForm.reset();
