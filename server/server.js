@@ -85,11 +85,19 @@ app.post("/login", async (req, res) => {
 
 });
 
+
 //add the engine
 const jsChessEngine = require('js-chess-engine');
+
+
 var game;
 
-//socket.io var
+//socket.io global var
+var Arr_rooms = [];
+
+
+
+
 var contatore;
 var arr_story;
 var history = [];
@@ -102,14 +110,41 @@ var black;
 var w_score;
 var b_score;
 
+
 //socket.io handler
 io.on("connection", (socket) => {
-
-
-
-
-    socket.emit("connected", "now you are connected");
+    //connection handler
     console.log("new client connected");
+    socket.emit("connected");
+
+    //send rooms to homepage
+    socket.on("Send_rooms", () => {
+        io.sockets.emit("send_arr", Arr_rooms);
+    })
+
+    //handle for room's creation
+    socket.on("createRoom", (name, time) => {
+        var room = {
+            room_name: name,
+            room_time: time,
+            room_players: 1
+        }
+        Arr_rooms.push(room);
+        console.log(room.name)
+        socket.join("room-" + room.room_name);
+        io.sockets.emit("send_arr", Arr_rooms);
+        io.sockets.in("room-" + room.room_name).emit("connect_room");
+    })
+
+    //handle for room's join
+    socket.on("join", (name) => {
+        let stanza = Arr_rooms.find(item => item.room_name == name);
+        console.log(stanza);
+        socket.join("room-" + name);
+        stanza.room_players++;
+        io.sockets.emit("send_arr", Arr_rooms);
+    })
+
     if (players == 0) {
         socket.emit("setWhite", true);
         main++;

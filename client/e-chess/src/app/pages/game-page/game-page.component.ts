@@ -25,6 +25,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
       this.socket.emit("exit", sessionStorage.getItem("username"));
     }
     this.socket.close();
+    sessionStorage.removeItem("room");
     this.router.navigate(["/home"]);
   }
 
@@ -234,9 +235,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
   connectWebSocket() {
 
     // Event emitted on successful connection
-    this.socket.on("connected", (message: any) => {
-      this.socket.emit("sendUsername", sessionStorage.getItem("username"), sessionStorage.getItem("score"));
-    });
+
 
     this.socket.on("setWhite", (bool) => {
       this.isWhite = bool;

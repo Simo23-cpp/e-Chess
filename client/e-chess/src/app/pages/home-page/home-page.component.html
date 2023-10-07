@@ -27,18 +27,23 @@
         <i class="bi bi-plus" style="font-size:30px;padding-right: 5px;" (click)="openModalCreateRoom()"></i>
     </div>
 
+    <div class="col-8 profile-flex font" *ngIf="Arr_rooms.length==0"
+        style="background-color: rgb(178, 175, 175);border-radius: 5px;padding:20px;">
+        Empty room list,
+        create one</div>
 
-    <div class="profile-flex col-8"
-        style="justify-content: space-between;background-color: rgb(178, 175, 175);border-radius: 5px;">
-        <div style="padding-left: 10px;font-size: 20px;">stanza</div>
-        <i class="bi bi-play-fill" (click)="play()" style="font-size:20px;padding-right: 10px;"></i>
-    </div>
+    <div *ngFor="let room of Arr_rooms" class="profile-flex col-8"
+        style="margin-top:5px;justify-content: space-between;background-color: rgb(178, 175, 175);border-radius: 5px;">
+        <div class="col-12 colll- font"
+            style="padding-left: 10px;display: flex;justify-content: space-between;flex-wrap: wrap;">
+            {{room.room_name}}
+            <span class="font"> <i class="bi bi-clock"></i> {{room.room_time}} min</span>
+            <span class="font"> <i class="bi bi-person-fill"></i> {{room.room_players}}</span>
+            <i class="font" [ngClass]="{'bi bi-play-fill':room.room_players<2,'bi bi bi-eye':room.room_players>=2}"
+                (click)="play(room.room_name)" style="padding-right: 10px;"></i>
 
+        </div>
 
-    <div class="profile-flex col-8"
-        style="justify-content: space-between;background-color: rgb(178, 175, 175);border-radius: 5px;margin-top: 5px;">
-        <div style="padding-left: 10px;font-size: 20px;">stanza</div>
-        <i class="bi bi bi-eye" (click)="play()" style="font-size:20px;padding-right: 10px;"></i>
     </div>
 
 </div>
@@ -63,8 +68,8 @@
         </div>
         <div class="m-body col-12 colll-" style="padding: 5px;">
             <div style="font-size: 20px;">Name</div>
-            <input class="col-11 form-control" style="margin-top: 10px;margin-bottom: 10px;" placeholder="room name"
-                #roomName>
+            <input class="col-11 form-control" style="margin-top: 10px;margin-bottom: 10px;"
+                placeholder="Room name  (max 15 char)" #roomName>
             <div style="font-size: 20px;">Time</div>
 
             <div class="profile-flex col-12">

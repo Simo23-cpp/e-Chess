@@ -138,7 +138,11 @@
     width: 100%;
 }
 
-@media(min-width:500px) {
+[class*="font"] {
+    font-size: 15px;
+}
+
+@media(min-width:550px) {
     [class*="col-"] {
         width: 70%;
     }
@@ -152,6 +156,10 @@
     }
 
 
+
+    [class*="font"] {
+        font-size: 20px;
+    }
 
 }
 
@@ -202,6 +210,11 @@
 
     .col-12 {
         width: 100%;
+    }
+
+
+    [class*="font"] {
+        font-size: 20px;
     }
 
 }
