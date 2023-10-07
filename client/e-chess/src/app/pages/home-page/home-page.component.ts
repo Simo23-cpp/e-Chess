@@ -15,8 +15,11 @@ export interface ScoreResponse {
 })
 export class HomePageComponent implements OnInit {
 
+  timeGame: number = 0;
   username: any;
   score: any;
+  showModalCreateRoom: boolean = false;
+  showModal: boolean = false;
 
   constructor(private router: Router, private http: HttpClient) { }
 
@@ -35,6 +38,31 @@ export class HomePageComponent implements OnInit {
 
   logout() {
     this.router.navigate(["/login"]);
+  }
+
+  setTime(time: number) {
+    this.timeGame = time;
+  }
+
+  openModalCreateRoom() {
+    this.showModalCreateRoom = true;
+    this.timeGame = 0;
+  }
+
+  closeModalCreateRoom() {
+    this.timeGame = 0;
+    this.showModalCreateRoom = false;
+  }
+
+
+  createRoom(roomName: string) {
+    if (roomName.length == 0 || this.timeGame == 0) {
+      this.showModal = true;
+      return;
+    }
+    console.log(roomName)
+    console.log(this.timeGame);
+    this.showModalCreateRoom = false;
   }
 
 

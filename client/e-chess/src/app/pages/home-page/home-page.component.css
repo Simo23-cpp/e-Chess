@@ -19,18 +19,43 @@
     margin-top: 10px;
 }
 
+
 .btn-primary {
     border-color: gray;
-    margin-top: 10px;
     background-color: green;
+    border-radius: 5px;
+    color: #f8f9fa;
+}
+
+.m-footer {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    justify-content: space-around;
+
 }
 
 .btn-outline-light {
     border-color: gray;
 }
 
+
 .btn-primary:hover {
     background-color: darkgreen;
+}
+
+.bi-play-fill:hover {
+    color: darkslategray;
+}
+
+.bi-eye:hover {
+    color: darkslategray;
+}
+
+
+.bi-plus:hover {
+    color: darkslategray;
 }
 
 
@@ -67,8 +92,39 @@
     border: 2px solid gray;
 }
 
+.modal {
+    position: fixed;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
+    top: 0px;
+    left: 0px;
+    z-index: 1;
+    background-color: #312e2b;
 
+}
 
+.m-header {
+    background-color: rgb(5, 145, 5);
+    text-align: center;
+    border-radius: 2px 2px 0px 0px;
+}
+
+.m-body {
+    background-color: #312e2b;
+    border-radius: 0px 0px 5px 5px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.t-flex {
+    display: flex;
+}
 
 [class*="col-"] {
     width: 90%;
@@ -99,7 +155,7 @@
 
 }
 
-@media(min-width: 850px) {
+@media(min-width: 950px) {
     .col-1 {
         width: 8.33%;
     }
