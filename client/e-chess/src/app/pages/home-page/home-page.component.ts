@@ -52,7 +52,6 @@ export class HomePageComponent implements OnInit, OnDestroy {
   play(name: string) {
     console.log(name);
     sessionStorage.setItem("room", name);
-    this.socket.emit("join", name);
     this.router.navigate(["/game"]);
   }
 
@@ -84,7 +83,7 @@ export class HomePageComponent implements OnInit, OnDestroy {
 
     sessionStorage.setItem("room", roomName);
     this.showModalCreateRoom = false;
-    this.socket.emit("createRoom", roomName, this.timeGame);
+    this.socket.emit("createRoom", roomName, this.timeGame, sessionStorage.getItem("username"), sessionStorage.getItem("score"));
     this.router.navigate(["/game"]);
   }
 
@@ -103,11 +102,6 @@ export class HomePageComponent implements OnInit, OnDestroy {
       console.log(this.Arr_rooms)
     })
 
-    this.socket.on("connect_room", () => {
-      console.log("sei nella room");
-    })
   }
-
-
 
 }

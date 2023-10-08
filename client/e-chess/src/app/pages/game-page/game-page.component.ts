@@ -83,6 +83,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
   boardPosition: any;
 
   //timer
+
   b_timeLeft: number = 300;
   b_min: number = Math.floor(this.b_timeLeft / 60);
   b_sec: number = this.b_timeLeft - this.b_min * 60;
@@ -155,11 +156,11 @@ export class GamePageComponent implements OnInit, OnDestroy {
     let piece = this.getPieceCodes(row, col);
     if (this.isWhite && (this.counter % 2) == 0) {
       if (piece != undefined && (piece == ChessPiecesCodes.WhitePawn || piece == ChessPiecesCodes.WhiteRook || piece == ChessPiecesCodes.WhiteQueen || piece == ChessPiecesCodes.WhiteKnight || piece == ChessPiecesCodes.WhiteKing || piece == ChessPiecesCodes.WhiteBishop)) {
-        this.socket.emit("PossibleMovesReq", this.cellValue, sessionStorage.getItem("username"));
+        this.socket.emit("PossibleMovesReq", this.cellValue, sessionStorage.getItem("username"), sessionStorage.getItem("room"));
       }
       else {
         if (this.moves.includes(this.cellValue)) {
-          this.socket.emit("movePiece", this.cellValue, this.selectedElem, sessionStorage.getItem("username"));
+          this.socket.emit("movePiece", this.cellValue, this.selectedElem, sessionStorage.getItem("username"), sessionStorage.getItem("room"));
         }
         this.clearSelectedCells();
         this.selectedElem = "";
@@ -168,11 +169,11 @@ export class GamePageComponent implements OnInit, OnDestroy {
 
     if (this.isBlack && (this.counter % 2) == 1) {
       if (piece != undefined && (piece == ChessPiecesCodes.BlackPawn || piece == ChessPiecesCodes.BlackRook || piece == ChessPiecesCodes.BlackQueen || piece == ChessPiecesCodes.BlackKnight || piece == ChessPiecesCodes.BlackKing || piece == ChessPiecesCodes.BlackBishop)) {
-        this.socket.emit("PossibleMovesReq", this.cellValue, sessionStorage.getItem("username"));
+        this.socket.emit("PossibleMovesReq", this.cellValue, sessionStorage.getItem("username"), sessionStorage.getItem("room"));
       }
       else {
         if (this.moves.includes(this.cellValue)) {
-          this.socket.emit("movePiece", this.cellValue, this.selectedElem, sessionStorage.getItem("username"));
+          this.socket.emit("movePiece", this.cellValue, this.selectedElem, sessionStorage.getItem("username"), sessionStorage.getItem("room"));
         }
         this.clearSelectedCells();
         this.selectedElem = "";
@@ -222,7 +223,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
   sendMsg() {
     const username = sessionStorage.getItem('username');
     let message = this.msg.value;
-    this.socket.emit("chat message", `${username}: ${message}`);
+    this.socket.emit("chat message", `${username}: ${message}`, sessionStorage.getItem("room"));
     this.msg.reset();
   }
 
@@ -235,15 +236,28 @@ export class GamePageComponent implements OnInit, OnDestroy {
   connectWebSocket() {
 
     // Event emitted on successful connection
+    this.socket.on("connected", () => {
+      console.log("connesso alla web socket");
+      this.socket.emit("join", sessionStorage.getItem("room"), sessionStorage.getItem("username"), sessionStorage.getItem("score"))
+    });
 
-
-    this.socket.on("setWhite", (bool) => {
-      this.isWhite = bool;
+    this.socket.on("connect_room", (room) => {
+      console.log("sei nella room " + room);
     })
 
-    this.socket.on("setBlack", (bool) => {
-      this.rotateBoard();
-      this.isBlack = bool;
+
+    this.socket.on("setWhite", (username) => {
+      if (username == sessionStorage.getItem("username")) {
+        this.isWhite = true;
+      }
+    })
+
+    this.socket.on("setBlack", (username) => {
+
+      if (username == sessionStorage.getItem("username")) {
+        this.rotateBoard();
+        this.isBlack = true;
+      }
     })
 
     this.socket.on("setWatcher", (bool, arr, story, contatore) => {
@@ -313,34 +327,34 @@ export class GamePageComponent implements OnInit, OnDestroy {
     });
 
     this.socket.on("moveFrontEnd", (new_p, old_p) => {
-      if (this.counter % 2 == 0) {
-        this.socket.emit("change_w");
-      }
-      else if (this.counter % 2 == 1) {
-        this.socket.emit("change_b");
-      }
+      /* if (this.counter % 2 == 0) {
+         this.socket.emit("change_w");
+       }
+       else if (this.counter % 2 == 1) {
+         this.socket.emit("change_b");
+       }*/
       this.counter++;
       this.move(new_p, old_p);
       let piece = this.getPieceCodes(new_p[0], new_p[1]);
       if (piece == ChessPiecesCodes.WhiteKing && old_p == "E1" && new_p == "G1") {
         this.move("F1", "H1");
         this.history.push(this.counter + piece + " O-O ");
-        this.socket.emit("arrocco", "F1", "H1", sessionStorage.getItem("username"));
+        this.socket.emit("arrocco", "F1", "H1", sessionStorage.getItem("username"), sessionStorage.getItem("room"));
       }
       else if (piece == ChessPiecesCodes.WhiteKing && old_p == "E1" && new_p == "C1") {
         this.move("D1", "A1");
         this.history.push(this.counter + piece + " O-O-O ");
-        this.socket.emit("arrocco", "D1", "A1", sessionStorage.getItem("username"));
+        this.socket.emit("arrocco", "D1", "A1", sessionStorage.getItem("username"), sessionStorage.getItem("room"));
       }
       else if (piece == ChessPiecesCodes.BlackKing && old_p == "E8" && new_p == "G8") {
         this.move("F8", "H8");
         this.history.push(this.counter + piece + " O-O ");
-        this.socket.emit("arrocco", "F8", "H8", sessionStorage.getItem("username"));
+        this.socket.emit("arrocco", "F8", "H8", sessionStorage.getItem("username"), sessionStorage.getItem("room"));
       }
       else if (piece == ChessPiecesCodes.BlackKing && old_p == "E8" && new_p == "C8") {
         this.move("D8", "A8");
         this.history.push(this.counter + piece + " O-O-O ");
-        this.socket.emit("arrocco", "D8", "A8", sessionStorage.getItem("username"));
+        this.socket.emit("arrocco", "D8", "A8", sessionStorage.getItem("username"), sessionStorage.getItem("room"));
       }
       else {
         this.history.push(this.counter + piece + new_p + "  ");
@@ -352,7 +366,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
         this.boardPosition[new_p].name = ChessPieces.BlackQueen;
       }
 
-      this.socket.emit("refreshHistory", this.history, this.counter);
+      this.socket.emit("refreshHistory", this.history, this.counter, sessionStorage.getItem("room"));
       this.moves = [];
     })
 
