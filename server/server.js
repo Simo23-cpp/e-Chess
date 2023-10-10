@@ -42,7 +42,7 @@ app.get("/getScore/:username", async (req, res) => {
     else { res.send("bad request").status(400); }
 });
 
-
+/*
 app.get("/setScore/:username/:score", async (req, res) => {
     const user = req.params.username;
 
@@ -57,7 +57,7 @@ app.get("/setScore/:username/:score", async (req, res) => {
         res.send("bad request").status(400);
     }
 })
-
+*/
 
 app.post("/insertUser", async (req, res) => {
     const user = req.body;
@@ -89,32 +89,13 @@ app.post("/login", async (req, res) => {
 //add the engine
 const jsChessEngine = require('js-chess-engine');
 
-
-var game;
-
 //socket.io global var
 var Arr_rooms = [];
-
-
-
-
-//var contatore;
-var arr_story;
-var history = [];
-var players = 0;
-var players_c = 0;
-var main = 0;
-var player_arr = [];
-var white;
-var black;
-var w_score;
-var b_score;
-
 
 //socket.io handler
 io.on("connection", (socket) => {
     //connection handler
-    console.log("new client connected");
+    //console.log("new client connected");
     socket.emit("connected");
 
     //send rooms to homepage
@@ -135,6 +116,7 @@ io.on("connection", (socket) => {
             player_arr: [],
             white: {},
             black: {},
+            exit: false,
             game: new jsChessEngine.Game()
         }
         Arr_rooms.push(room);
@@ -166,6 +148,10 @@ io.on("connection", (socket) => {
             io.sockets.in("room-" + stanza.room_name).emit("setWhite", stanza.white.player_username);
             io.sockets.in("room-" + stanza.room_name).emit("setBlack", stanza.black.player_username);
             io.sockets.in("room-" + stanza.room_name).emit("setPlayer", stanza.white.player_username, stanza.black.player_username, stanza.white.player_score, stanza.black.player_score);
+            if (stanza.white.player_username == stanza.black.player_username) {
+                io.sockets.in("room-" + stanza.room_name).emit("invalidgame");
+                stanza.exit = true;
+            }
         }
         if (stanza.player_arr.length > 1) {
             io.sockets.in("room-" + name).emit("setLoader", false)
@@ -184,65 +170,6 @@ io.on("connection", (socket) => {
 
         }
     })
-
-    /*
-        socket.on("getRole", (room, username) => {
-            let stanza = Arr_rooms.find(item => item.room_name == room);
-            if (stanza.white.player_username === username) {
-                console.log("white: " + username);
-            }
-            else if (stanza.black.player_username === username) {
-                console.log("black: " + username);
-            }
-            else {
-                console.log("watcher: " + username);
-            }
-        })
-    */
-    /* if (players == 0) {
-        
-         main++;
-     }
-     else if (players == 1) {
-        
-         game = new jsChessEngine.Game();
-         //game.printToConsole(); command for print the game to console
-         io.sockets.emit("start_w_timer");
-         main++;
-     }
-     else {
-       //  socket.emit("setWatcher", true, history, arr_story, contatore);
-     }
-     players++;
-     players_c++;
-
-
-
-    socket.on("sendUsername", (user, score) => {
-        player_arr.push(user);
-        if (player_arr.length == 1) {
-            white = player_arr[0];
-            w_score = score;
-        }
-        if (player_arr.length == 2) {
-            black = player_arr[1];
-            b_score = score
-            if (black === white) {
-                io.sockets.emit("invalidgame");
-            }
-
-        }
-        if (player_arr.length >= 2) {
-            io.sockets.emit("setPlayer", white, black, w_score, b_score);
-        }
-    })
-
-
-    if (players >= 2) {
-           io.sockets.emit("setLoader", false);
-    }
-    */
-
 
 
     socket.on("chat message", (message, room) => {
@@ -265,7 +192,6 @@ io.on("connection", (socket) => {
             stanza.history.push(old_p);
             stanza.history.push(new_p);
             stanza.game.move(old_p, new_p);
-            //game.printToConsole();
             io.sockets.in("room-" + stanza.room_name).emit("moveFrontEnd", new_p, old_p);
             let checkmate = stanza.game.exportJson().checkMate;
             let isFinish = stanza.game.exportJson().isFinished;
@@ -274,13 +200,16 @@ io.on("connection", (socket) => {
             if (checkmate && isFinish) {
                 let winner = stanza.game.exportJson().turn;
                 io.sockets.in("room-" + stanza.room_name).emit("setWinner", winner);
-                io.sockets.in("room-" + stanza.room_name).emit("setFinish", true);
+                // io.sockets.in("room-" + stanza.room_name).emit("setFinish", true);
+                stanza.exit = true;
             }
             else if (!checkmate && isFinish) {
                 io.sockets.in("room-" + stanza.room_name).emit("draw", true);
+                stanza.exit = true;
             }
         }
     })
+
 
 
     socket.on("refreshHistory", (story, counter, room) => {
@@ -299,25 +228,35 @@ io.on("connection", (socket) => {
         }
     })
 
-    socket.on("exit", async (user) => {
-        if (user == black || user == white) {
+    socket.on("exit", async (user, room) => {
+        console.log("exit")
 
-            main--;
-            io.sockets.emit("abbandono", user);
-            io.sockets.emit("setFinish", true);
-            if (user == black) {
-                if (b_score >= 10) {
-                    b_score -= 10;
-                    await models.findOneAndUpdate({ username: black }, { score: b_score });
+        let stanza = Arr_rooms.find(item => item.room_name == room);
+        if (user == stanza.black.player_username || user == stanza.white.player_username) {
+            io.sockets.in("room-" + stanza.room_name).emit("abbandono", user);
+            io.sockets.in("room-" + stanza.room_name).emit("setFinish", true);
+            if (user == stanza.black.player_username) {
+                if (stanza.black.player_score >= 10) {
+                    stanza.black.player_score -= 10;
+                    let score = parseInt(stanza.white.player_score) + 10;
+                    await models.findOneAndUpdate({ username: stanza.black.player_username }, { score: stanza.black.player_score });
+                    await models.findOneAndUpdate({ username: stanza.white.player_username }, { score: score });
+                    io.sockets.in("room-" + stanza.room_name).emit("abbandono", user);
+                    io.sockets.in("room-" + stanza.room_name).emit("setFinish", true);
                 }
             }
-            else if (user == white) {
-                if (w_score >= 10) {
-                    w_score -= 10;
-                    await models.findOneAndUpdate({ username: white }, { score: w_score });
+            else if (user == stanza.white.player_username) {
+                if (stanza.white.player_score >= 10) {
+                    stanza.white.player_score -= 10;
+                    let score = parseInt(stanza.black.player_score) + 10;
+                    await models.findOneAndUpdate({ username: stanza.white.player_username }, { score: stanza.white.player_score });
+                    await models.findOneAndUpdate({ username: stanza.black.player_username }, { score: score });
+                    io.sockets.in("room-" + stanza.room_name).emit("abbandono", user);
+                    io.sockets.in("room-" + stanza.room_name).emit("setFinish", true);
                 }
             }
 
+            stanza.exit = true;
         }
     })
 
@@ -330,37 +269,37 @@ io.on("connection", (socket) => {
     })
 
 
-    socket.on("disconnect", () => {
-        players_c--;
+    socket.on("disconnect", async () => {
         let playerToRemove;
         let roomToUpdate;
+        //console.log("disconnection")
         Arr_rooms.forEach((item) => {
-            // console.log("item")
-            // console.log(item);
-            // console.log(socket.id)
             playerToRemove = item.player_arr.find(elem => elem.id == socket.id)
-            // console.log(playerToRemove)
             if (playerToRemove != undefined) {
                 roomToUpdate = item;
-                console.log(playerToRemove)
-                console.log(roomToUpdate)
+                //console.log("ci sono");
+                if (playerToRemove.player_username == roomToUpdate.black.player_username || playerToRemove.player_username == roomToUpdate.white.player_username) {
+                    //io.sockets.in("room-" + roomToUpdate.room_name).emit("abbandono", playerToRemove.player_username);
+                    io.sockets.in("room-" + roomToUpdate.room_name).emit("setFinish", true);
+                }
                 roomToUpdate.room_players--;
                 roomToUpdate.player_arr.pop(playerToRemove);
                 socket.leave("room-" + roomToUpdate.room_name);
-                console.log("after disconnection:");
-                console.log(roomToUpdate);
+                if (roomToUpdate.room_players < 2) {
+                    io.socketsLeave("room-" + roomToUpdate.room_name);
+                    Arr_rooms.pop(roomToUpdate);
+                }
+                //console.log(Arr_rooms);
                 return;
             }
         })
+
 
         console.log("A client has disconnected");
 
     });
 
 });
-
-
-
 
 
 httpServer.listen(global.SOCKET_IO_PORT, () => {

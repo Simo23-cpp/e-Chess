@@ -40,7 +40,7 @@
                 <button type="button" class="btn btn-primary col-5 b-size" (click)="rotateBoard()">Flip
                     <i class="bi bi-arrow-repeat"></i>
                 </button>
-                <button type="button" class="btn btn-danger col-5 b-size" (click)="exit()">Exit <i
+                <button type="button" class="btn btn-danger col-5 b-size" (click)="open_exit_d()">Exit <i
                         class="bi bi-box-arrow-right"></i></button>
             </div>
             <div class="col-12 nine-">
@@ -103,4 +103,23 @@
         </div>
 
 
+    </div>
+
+</div>
+
+<div *ngIf="openD" class="my-modal">
+
+    <div class="card col-6 card-s-">
+        <div class="card-header">
+            <span>Are you sure?</span>
+
+        </div>
+        <div class="m-flex">
+            <button type="button" class="btn btn-primary col-2 c-size" style="margin-top: 20px;margin-bottom: 10px;"
+                (click)="exit()">Yes
+            </button>
+            <button type="button" class="btn btn-danger col-2 c-size" style="margin-top: 20px;margin-bottom: 10px;"
+                (click)="openD=false">No
+            </button>
+        </div>
     </div>

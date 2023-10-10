@@ -5,7 +5,7 @@ import { io } from 'socket.io-client';
 import { ChessPieces, ChessPiecesCodes } from 'src/app/models/chess-pieces';
 import { initialBoardPosition } from 'src/app/models/initial-board-position';
 import { HttpClient } from '@angular/common/http';
-import { SERVER_PATH, SOCKET_IO_PATH } from 'src/app/config';
+import { SOCKET_IO_PATH } from 'src/app/config';
 
 
 @Component({
@@ -22,7 +22,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     if (this.playerBlack != "" && this.playerWhite != "") {
-      this.socket.emit("exit", sessionStorage.getItem("username"));
+      this.socket.emit("exit", sessionStorage.getItem("username"), sessionStorage.getItem("room"));
     }
     this.socket.close();
     sessionStorage.removeItem("room");
@@ -72,6 +72,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
   //modal for game finish
   isFinish: boolean = false;
   isDraw: boolean = false;
+  openD: boolean = false;
 
   //socket.io socket setup
   socket = io(SOCKET_IO_PATH);
@@ -110,7 +111,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
 
 
       } else {
-        this.socket.emit("exit", this.playerWhite);
+        this.socket.emit("exit", this.playerWhite, sessionStorage.getItem("room"));
       }
     }, 1600)
   }
@@ -133,7 +134,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
 
 
       } else {
-        this.socket.emit("exit", this.playerBlack);
+        this.socket.emit("exit", this.playerBlack, sessionStorage.getItem("room"));
       }
     }, 1600)
   }
@@ -215,8 +216,19 @@ export class GamePageComponent implements OnInit, OnDestroy {
 
   //funciotn for modal
   exit() {
+    this.openD = false;
     this.isFinish = true;
-    this.socket.emit("exit", sessionStorage.getItem("username"));
+    this.socket.emit("exit", sessionStorage.getItem("username"), sessionStorage.getItem("room"));
+  }
+
+  open_exit_d() {
+    if (!this.isWatcher) {
+      this.openD = true;
+    }
+    else {
+      this.isFinish = true;
+      this.socket.close();
+    }
   }
 
   //funcition for chat
@@ -378,26 +390,11 @@ export class GamePageComponent implements OnInit, OnDestroy {
     this.socket.on("setWinner", (turn) => {
       if (turn == "black") {
         this.winner = this.playerWhite;
+        this.socket.emit("exit", this.playerBlack, sessionStorage.getItem("room"));
       }
       if (turn == "white") {
         this.winner = this.playerBlack;
-      }
-
-      if (sessionStorage.getItem("username") == this.playerBlack || sessionStorage.getItem("username") == this.playerWhite) {
-        if (sessionStorage.getItem("username") == this.winner) {
-          let score = parseInt(sessionStorage.getItem('score')!)
-          score += 10;
-          sessionStorage.setItem('score', score.toString());
-          this.http.get(SERVER_PATH + "setScore/" + sessionStorage.getItem("username") + "/" + sessionStorage.getItem("score")).subscribe();
-        }
-        else {
-          let score = parseInt(sessionStorage.getItem('score')!)
-          if (score >= 10) {
-            score -= 10;
-            sessionStorage.setItem('score', score.toString());
-            this.http.get(SERVER_PATH + "setScore/" + sessionStorage.getItem("username") + "/" + sessionStorage.getItem("score")).subscribe();
-          };
-        }
+        this.socket.emit("exit", this.playerWhite, sessionStorage.getItem("room"));
       }
 
     })
@@ -411,46 +408,34 @@ export class GamePageComponent implements OnInit, OnDestroy {
       if (user == this.playerWhite) {
         this.winner = this.playerBlack;
       }
-      if (sessionStorage.getItem("username") == this.playerBlack || sessionStorage.getItem("username") == this.playerWhite) {
-        if (sessionStorage.getItem("username") == this.winner) {
-          let score = parseInt(sessionStorage.getItem('score')!)
-          score += 10;
-          sessionStorage.setItem('score', score.toString());
-          this.http.get(SERVER_PATH + "setScore/" + sessionStorage.getItem("username") + "/" + sessionStorage.getItem("score")).subscribe();
-        }
-        else {
-          let score = parseInt(sessionStorage.getItem('score')!)
-          if (score >= 10) {
-            score -= 10;
-            sessionStorage.setItem('score', score.toString());
-            this.http.get(SERVER_PATH + "setScore/" + sessionStorage.getItem("username") + "/" + sessionStorage.getItem("score")).subscribe();
-          }
-        }
-      }
-    })
 
-    this.socket.on("start_w_timer", () => {
-      this.w_startTimer();
     })
-
-    this.socket.on("change", () => {
-      this.w_pauseTimer();
-      this.b_startTimer();
-    })
-
-    this.socket.on("change2", () => {
-      this.b_pauseTimer();
-      this.w_startTimer();
-    })
-
+    /*
+        this.socket.on("start_w_timer", () => {
+          this.w_startTimer();
+        })
+    
+        this.socket.on("change", () => {
+          this.w_pauseTimer();
+          this.b_startTimer();
+        })
+    
+        this.socket.on("change2", () => {
+          this.b_pauseTimer();
+          this.w_startTimer();
+        })
+    */
     this.socket.on("draw", () => {
       this.isDraw = true;
+      this.socket.close();
     })
 
     this.socket.on("invalidgame", () => {
       alert("invalid game");
+      this.socket.close();
       this.router.navigate(["/home"]);
     })
+
 
     // Event emitted on not found error
     this.socket.on("connect_error", () => {

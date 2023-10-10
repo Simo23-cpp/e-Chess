@@ -276,6 +276,10 @@
     background-color: darkgreen;
 }
 
+.btn-danger:hover {
+    background-color: darkred;
+}
+
 [class*="col-"] {
     width: 90%;
 }
