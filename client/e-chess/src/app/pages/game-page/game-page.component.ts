@@ -85,11 +85,11 @@ export class GamePageComponent implements OnInit, OnDestroy {
 
   //timer
 
-  b_timeLeft: number = 300;
+  b_timeLeft: number = parseInt(sessionStorage.getItem("time")!) * 60;
   b_min: number = Math.floor(this.b_timeLeft / 60);
   b_sec: number = this.b_timeLeft - this.b_min * 60;
   b_timer: string = this.b_min + ":" + this.b_sec.toString().concat('0');
-  w_timeLeft: number = 300;
+  w_timeLeft: number = parseInt(sessionStorage.getItem("time")!) * 60;
   w_min: number = Math.floor(this.w_timeLeft / 60);
   w_sec: number = this.w_timeLeft - this.w_min * 60;
   w_timer: string = this.w_min + ":" + this.w_sec.toString().concat('0');
@@ -235,8 +235,11 @@ export class GamePageComponent implements OnInit, OnDestroy {
   sendMsg() {
     const username = sessionStorage.getItem('username');
     let message = this.msg.value;
-    this.socket.emit("chat message", `${username}: ${message}`, sessionStorage.getItem("room"));
-    this.msg.reset();
+    let control = (message?.trim());
+    if (control !== "") {
+      this.socket.emit("chat message", `${username}: ${message}`, sessionStorage.getItem("room"));
+    }
+    this.msg.reset("");
   }
 
   //funciotn for close modal
@@ -323,6 +326,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
 
     // Event emitted on message received
     this.socket.on("chat message", (message: any) => {
+      // console.log(message.toString());
       this.chat_message.push(message);
     });
 

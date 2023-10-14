@@ -45,7 +45,8 @@
             </div>
             <div class="col-12 nine-">
                 <div class="chat col-12 colll-">
-                    <div *ngFor="let msg of chat_message">{{msg}}</div>
+                    <div *ngFor="let msg of chat_message" style="word-wrap: break-word;">
+                        {{msg}}</div>
                 </div>
                 <div class="col-12 colll-"><input type="text " class="col-12 colll-" placeholder="Send message"
                         style="padding-left: 10px;margin-top: 2px;" [formControl]="msg" (keyup.enter)="sendMsg()">

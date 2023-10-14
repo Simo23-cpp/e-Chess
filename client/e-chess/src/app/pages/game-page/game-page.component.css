@@ -185,8 +185,10 @@
     border: 1px solid black;
     color: black;
     padding-left: 10px;
+    padding-right: 10px;
     overflow-y: auto;
 }
+
 
 .chat::-webkit-scrollbar-track {
     background: whitesmoke;

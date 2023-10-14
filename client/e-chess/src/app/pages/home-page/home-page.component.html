@@ -40,7 +40,7 @@
             <span class="font"> <i class="bi bi-clock"></i> {{room.room_time}} min</span>
             <span class="font"> <i class="bi bi-person-fill"></i> {{room.room_players}}</span>
             <i class="font" [ngClass]="{'bi bi-play-fill':room.room_players<2,'bi bi bi-eye':room.room_players>=2}"
-                (click)="play(room.room_name)" style="padding-right: 10px;"></i>
+                (click)="play(room.room_name,room.room_time)" style="padding-right: 10px;"></i>
 
         </div>
 

@@ -49,9 +49,11 @@ export class HomePageComponent implements OnInit, OnDestroy {
     this.socket.close();
   }
 
-  play(name: string) {
+  play(name: string, time: number) {
     console.log(name);
+    console.log(time);
     sessionStorage.setItem("room", name);
+    sessionStorage.setItem("time", time.toString());
     this.router.navigate(["/game"]);
   }
 
@@ -84,6 +86,7 @@ export class HomePageComponent implements OnInit, OnDestroy {
     sessionStorage.setItem("room", roomName);
     this.showModalCreateRoom = false;
     this.socket.emit("createRoom", roomName, this.timeGame, sessionStorage.getItem("username"), sessionStorage.getItem("score"));
+    sessionStorage.setItem("time", this.timeGame.toString());
     this.router.navigate(["/game"]);
   }
 

@@ -95,7 +95,7 @@ var Arr_rooms = [];
 //socket.io handler
 io.on("connection", (socket) => {
     //connection handler
-    //console.log("new client connected");
+    console.log("new client connected");
     socket.emit("connected");
 
     //send rooms to homepage
@@ -300,6 +300,55 @@ io.on("connection", (socket) => {
     });
 
 });
+
+//function for timer
+
+function w_startTimer() {
+    this.interval = setInterval(() => {
+        if (this.w_timeLeft > 0) {
+            this.w_timeLeft--;
+            this.w_min = Math.floor(this.w_timeLeft / 60);
+            this.w_sec = this.w_timeLeft - this.w_min * 60;
+            if (this.w_sec < 10) {
+                this.w_timer = this.w_min + ":" + this.w_sec.toString().padStart(2, '0');
+            } else {
+                this.w_timer = this.w_min + ":" + this.w_sec;
+            }
+
+
+        } else {
+            this.socket.emit("exit", this.playerWhite, sessionStorage.getItem("room"));
+        }
+    }, 1600)
+}
+
+function w_pauseTimer() {
+    clearInterval(this.interval);
+}
+
+function b_startTimer() {
+    this.interval = setInterval(() => {
+        if (this.b_timeLeft > 0) {
+            this.b_timeLeft--;
+            this.b_min = Math.floor(this.b_timeLeft / 60);
+            this.b_sec = this.b_timeLeft - this.b_min * 60;
+            if (this.b_sec < 10) {
+                this.b_timer = this.b_min + ":" + this.b_sec.toString().padStart(2, '0');
+            } else {
+                this.b_timer = this.b_min + ":" + this.b_sec;
+            }
+
+
+        } else {
+            this.socket.emit("exit", this.playerBlack, sessionStorage.getItem("room"));
+        }
+    }, 1600)
+}
+
+function b_pauseTimer() {
+    clearInterval(this.interval);
+}
+
 
 
 httpServer.listen(global.SOCKET_IO_PORT, () => {
