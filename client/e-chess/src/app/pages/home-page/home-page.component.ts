@@ -12,7 +12,8 @@ export interface ScoreResponse {
 export interface Room {
   room_name: string,
   room_players: number,
-  room_time: number
+  room_time: number,
+  players: any[]
 }
 
 @Component({
@@ -85,7 +86,7 @@ export class HomePageComponent implements OnInit, OnDestroy {
 
     sessionStorage.setItem("room", roomName);
     this.showModalCreateRoom = false;
-    this.socket.emit("createRoom", roomName, this.timeGame, sessionStorage.getItem("username"), sessionStorage.getItem("score"));
+    this.socket.emit("createRoom", roomName, this.timeGame);
     sessionStorage.setItem("time", this.timeGame.toString());
     this.router.navigate(["/game"]);
   }
@@ -103,6 +104,15 @@ export class HomePageComponent implements OnInit, OnDestroy {
     this.socket.on("send_arr", (arr: any) => {
       this.Arr_rooms = arr;
       console.log(this.Arr_rooms)
+      let isLogged = false;
+      this.Arr_rooms.forEach((item) => {
+        isLogged = item.players.some((elem) => elem.player_username == sessionStorage.getItem('username'))
+      })
+      console.log(isLogged);
+      if (isLogged) {
+        this.socket.close();
+        this.router.navigate(["/login"]);
+      }
     })
 
   }

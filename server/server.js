@@ -42,7 +42,7 @@ app.get("/getScore/:username", async (req, res) => {
     else { res.send("bad request").status(400); }
 });
 
-/*
+
 app.get("/setScore/:username/:score", async (req, res) => {
     const user = req.params.username;
 
@@ -57,7 +57,7 @@ app.get("/setScore/:username/:score", async (req, res) => {
         res.send("bad request").status(400);
     }
 })
-*/
+
 
 app.post("/insertUser", async (req, res) => {
     const user = req.body;
@@ -100,12 +100,14 @@ io.on("connection", (socket) => {
 
     //send rooms to homepage
     socket.on("Send_rooms", () => {
-        io.sockets.emit("send_arr", Arr_rooms);
+        io.sockets.emit("send_arr", Arr_rooms.map((item) => {
+            return { room_name: item.room_name, room_players: item.room_players, room_time: item.room_time, players: item.player_arr }
+        }));
     })
 
 
     //handle for room's creation
-    socket.on("createRoom", (name, time, user, score) => {
+    socket.on("createRoom", (name, time) => {
         var room = {
             room_name: name,
             room_time: time,
@@ -116,12 +118,14 @@ io.on("connection", (socket) => {
             player_arr: [],
             white: {},
             black: {},
-            exit: false,
+            interval: function () { },
+            w_timer: parseInt(time) * 60,
+            b_timer: parseInt(time) * 60,
             game: new jsChessEngine.Game()
         }
         Arr_rooms.push(room);
         io.sockets.emit("send_arr", Arr_rooms.map((item) => {
-            return { room_name: item.room_name, room_players: item.room_players, room_time: item.room_time }
+            return { room_name: item.room_name, room_players: item.room_players, room_time: item.room_time, players: item.player_arr }
         }));
 
     })
@@ -135,6 +139,7 @@ io.on("connection", (socket) => {
             player_score: score,
             id: socket.id
         }
+        console.log("join");
         stanza.room_players++;
         stanza.player_arr.push(player);
         socket.join("room-" + name);
@@ -148,9 +153,10 @@ io.on("connection", (socket) => {
             io.sockets.in("room-" + stanza.room_name).emit("setWhite", stanza.white.player_username);
             io.sockets.in("room-" + stanza.room_name).emit("setBlack", stanza.black.player_username);
             io.sockets.in("room-" + stanza.room_name).emit("setPlayer", stanza.white.player_username, stanza.black.player_username, stanza.white.player_score, stanza.black.player_score);
+            io.sockets.in("room-" + stanza.room_name).emit("start_w_timer");
             if (stanza.white.player_username == stanza.black.player_username) {
                 io.sockets.in("room-" + stanza.room_name).emit("invalidgame");
-                stanza.exit = true;
+
             }
         }
         if (stanza.player_arr.length > 1) {
@@ -161,7 +167,10 @@ io.on("connection", (socket) => {
             socket.emit("setWatcher", true, stanza.history, stanza.arr_story, stanza.contatore);
             socket.emit("setPlayer", stanza.white.player_username, stanza.black.player_username, stanza.white.player_score, stanza.black.player_score);
         }
-        io.sockets.emit("send_arr", Arr_rooms);
+        console.log("prima di send arr");
+        io.sockets.emit("send_arr", Arr_rooms.map((item) => {
+            return { room_name: item.room_name, room_players: item.room_players, room_time: item.room_time, players: item.player_arr }
+        }));
     })
 
     socket.on("loader", (room) => {
@@ -201,11 +210,11 @@ io.on("connection", (socket) => {
                 let winner = stanza.game.exportJson().turn;
                 io.sockets.in("room-" + stanza.room_name).emit("setWinner", winner);
                 // io.sockets.in("room-" + stanza.room_name).emit("setFinish", true);
-                stanza.exit = true;
+
             }
             else if (!checkmate && isFinish) {
                 io.sockets.in("room-" + stanza.room_name).emit("draw", true);
-                stanza.exit = true;
+
             }
         }
     })
@@ -232,6 +241,7 @@ io.on("connection", (socket) => {
         console.log("exit")
 
         let stanza = Arr_rooms.find(item => item.room_name == room);
+        clearInterval(stanza.interval);
         if (user == stanza.black.player_username || user == stanza.white.player_username) {
             io.sockets.in("room-" + stanza.room_name).emit("abbandono", user);
             io.sockets.in("room-" + stanza.room_name).emit("setFinish", true);
@@ -256,18 +266,55 @@ io.on("connection", (socket) => {
                 }
             }
 
-            stanza.exit = true;
+
         }
     })
 
-    socket.on("change_w", () => {
-        io.sockets.emit("change");
+    socket.on("w_start", (room) => {
+        let stanza = Arr_rooms.find(item => item.room_name == room);
+        console.log("w_start è partito");
+        stanza.interval = setInterval(() => {
+            console.log(stanza.w_timer);
+            if (stanza.w_timer > 0) {
+                stanza.w_timer--;
+                io.sockets.in("room-" + stanza.room_name).emit("down_t", stanza.w_timer);
+            } else {
+                let winner = stanza.game.exportJson().turn;
+                io.sockets.in("room-" + stanza.room_name).emit("setWinner", winner);
+            }
+        }, 1400)
     })
 
-    socket.on("change_b", () => {
-        io.sockets.emit("change2");
+    socket.on("b_start", (room) => {
+        let stanza = Arr_rooms.find(item => item.room_name == room);
+        console.log("b_start è partito");
+        stanza.interval = setInterval(() => {
+            console.log(stanza.b_timer);
+            if (stanza.b_timer > 0) {
+                stanza.b_timer--;
+                io.sockets.in("room-" + stanza.room_name).emit("down_t_2", stanza.b_timer);
+            } else {
+                let winner = stanza.game.exportJson().turn;
+                io.sockets.in("room-" + stanza.room_name).emit("setWinner", winner);
+            }
+        }, 1400)
     })
 
+    socket.on("clear_interval", (room) => {
+        console.log("pausa timer")
+        let stanza = Arr_rooms.find(item => item.room_name == room);
+        clearInterval(stanza.interval);
+    })
+
+    /*
+        socket.on("change_w", () => {
+            io.sockets.emit("change");
+        })
+    
+        socket.on("change_b", () => {
+            io.sockets.emit("change2");
+        })
+    */
 
     socket.on("disconnect", async () => {
         let playerToRemove;
@@ -304,18 +351,9 @@ io.on("connection", (socket) => {
 //function for timer
 
 function w_startTimer() {
-    this.interval = setInterval(() => {
+    interval = setInterval(() => {
         if (this.w_timeLeft > 0) {
             this.w_timeLeft--;
-            this.w_min = Math.floor(this.w_timeLeft / 60);
-            this.w_sec = this.w_timeLeft - this.w_min * 60;
-            if (this.w_sec < 10) {
-                this.w_timer = this.w_min + ":" + this.w_sec.toString().padStart(2, '0');
-            } else {
-                this.w_timer = this.w_min + ":" + this.w_sec;
-            }
-
-
         } else {
             this.socket.emit("exit", this.playerWhite, sessionStorage.getItem("room"));
         }

@@ -93,56 +93,56 @@ export class GamePageComponent implements OnInit, OnDestroy {
   w_min: number = Math.floor(this.w_timeLeft / 60);
   w_sec: number = this.w_timeLeft - this.w_min * 60;
   w_timer: string = this.w_min + ":" + this.w_sec.toString().concat('0');
-
-  interval: any;
-
-
-  w_startTimer() {
-    this.interval = setInterval(() => {
-      if (this.w_timeLeft > 0) {
-        this.w_timeLeft--;
-        this.w_min = Math.floor(this.w_timeLeft / 60);
-        this.w_sec = this.w_timeLeft - this.w_min * 60;
-        if (this.w_sec < 10) {
-          this.w_timer = this.w_min + ":" + this.w_sec.toString().padStart(2, '0');
+  /*
+    interval: any;
+  
+  
+    w_startTimer() {
+      this.interval = setInterval(() => {
+        if (this.w_timeLeft > 0) {
+          this.w_timeLeft--;
+          this.w_min = Math.floor(this.w_timeLeft / 60);
+          this.w_sec = this.w_timeLeft - this.w_min * 60;
+          if (this.w_sec < 10) {
+            this.w_timer = this.w_min + ":" + this.w_sec.toString().padStart(2, '0');
+          } else {
+            this.w_timer = this.w_min + ":" + this.w_sec;
+          }
+  
+  
         } else {
-          this.w_timer = this.w_min + ":" + this.w_sec;
+          this.socket.emit("exit", this.playerWhite, sessionStorage.getItem("room"));
         }
-
-
-      } else {
-        this.socket.emit("exit", this.playerWhite, sessionStorage.getItem("room"));
-      }
-    }, 1600)
-  }
-
-  w_pauseTimer() {
-    clearInterval(this.interval);
-  }
-
-  b_startTimer() {
-    this.interval = setInterval(() => {
-      if (this.b_timeLeft > 0) {
-        this.b_timeLeft--;
-        this.b_min = Math.floor(this.b_timeLeft / 60);
-        this.b_sec = this.b_timeLeft - this.b_min * 60;
-        if (this.b_sec < 10) {
-          this.b_timer = this.b_min + ":" + this.b_sec.toString().padStart(2, '0');
+      }, 1600)
+    }
+  
+    w_pauseTimer() {
+      clearInterval(this.interval);
+    }
+  
+    b_startTimer() {
+      this.interval = setInterval(() => {
+        if (this.b_timeLeft > 0) {
+          this.b_timeLeft--;
+          this.b_min = Math.floor(this.b_timeLeft / 60);
+          this.b_sec = this.b_timeLeft - this.b_min * 60;
+          if (this.b_sec < 10) {
+            this.b_timer = this.b_min + ":" + this.b_sec.toString().padStart(2, '0');
+          } else {
+            this.b_timer = this.b_min + ":" + this.b_sec;
+          }
+  
+  
         } else {
-          this.b_timer = this.b_min + ":" + this.b_sec;
+          this.socket.emit("exit", this.playerBlack, sessionStorage.getItem("room"));
         }
-
-
-      } else {
-        this.socket.emit("exit", this.playerBlack, sessionStorage.getItem("room"));
-      }
-    }, 1600)
-  }
-
-  b_pauseTimer() {
-    clearInterval(this.interval);
-  }
-
+      }, 1600)
+    }
+  
+    b_pauseTimer() {
+      clearInterval(this.interval);
+    }
+  */
   constructor(private router: Router, private http: HttpClient) { }
 
   getPieceCodes(row: any, col: any) {
@@ -343,12 +343,6 @@ export class GamePageComponent implements OnInit, OnDestroy {
     });
 
     this.socket.on("moveFrontEnd", (new_p, old_p) => {
-      /* if (this.counter % 2 == 0) {
-         this.socket.emit("change_w");
-       }
-       else if (this.counter % 2 == 1) {
-         this.socket.emit("change_b");
-       }*/
       this.counter++;
       this.move(new_p, old_p);
       let piece = this.getPieceCodes(new_p[0], new_p[1]);
@@ -381,6 +375,18 @@ export class GamePageComponent implements OnInit, OnDestroy {
       if (piece == ChessPiecesCodes.BlackPawn && new_p[1] == "1") {
         this.boardPosition[new_p].name = ChessPieces.BlackQueen;
       }
+      if (this.counter % 2 == 0 && this.counter > 1) {
+        if (this.isWhite) {
+          this.socket.emit("clear_interval", sessionStorage.getItem("room"));
+          this.socket.emit("w_start", sessionStorage.getItem("room"));
+        }
+      }
+      else if (this.counter % 2 == 1) {
+        if (this.isBlack) {
+          this.socket.emit("clear_interval", sessionStorage.getItem("room"));
+          this.socket.emit("b_start", sessionStorage.getItem("room"));
+        }
+      }
 
       this.socket.emit("refreshHistory", this.history, this.counter, sessionStorage.getItem("room"));
       this.moves = [];
@@ -388,24 +394,27 @@ export class GamePageComponent implements OnInit, OnDestroy {
 
     this.socket.on("setFinish", (bool) => {
       this.isFinish = bool;
+      // await this.socket.emit("clear_interval", sessionStorage.getItem("room"));
       this.socket.close();
     })
 
     this.socket.on("setWinner", (turn) => {
       if (turn == "black") {
+        //this.socket.emit("clear_interval", sessionStorage.getItem("room"));
         this.winner = this.playerWhite;
         this.socket.emit("exit", this.playerBlack, sessionStorage.getItem("room"));
       }
       if (turn == "white") {
+        // this.socket.emit("clear_interval", sessionStorage.getItem("room"));
         this.winner = this.playerBlack;
         this.socket.emit("exit", this.playerWhite, sessionStorage.getItem("room"));
       }
 
     })
 
-    this.socket.on("abbandono", async (user) => {
-      this.b_pauseTimer();
-      this.w_pauseTimer();
+    this.socket.on("abbandono", (user) => {
+      // this.b_pauseTimer();
+      // this.w_pauseTimer();
       if (user == this.playerBlack) {
         this.winner = this.playerWhite;
       }
@@ -414,11 +423,42 @@ export class GamePageComponent implements OnInit, OnDestroy {
       }
 
     })
+
+
+    this.socket.on("start_w_timer", () => {
+      console.log("chiamo w_start");
+      if (this.isWhite) {
+        this.socket.emit("w_start", sessionStorage.getItem("room"));
+      }
+    })
+
+    this.socket.on("down_t", (n_time) => {
+      this.w_timeLeft = parseInt(n_time);
+      this.w_min = Math.floor(this.w_timeLeft / 60);
+      this.w_sec = this.w_timeLeft - this.w_min * 60;
+      this.w_timer = this.w_min + ":" + this.w_sec.toString().concat('0');
+      if (this.w_sec < 10) {
+        this.w_timer = this.w_min + ":" + this.w_sec.toString().padStart(2, '0');
+      } else {
+        this.w_timer = this.w_min + ":" + this.w_sec;
+      }
+    })
+
+
+    this.socket.on("down_t_2", (n_time) => {
+      this.b_timeLeft = parseInt(n_time);
+      this.b_min = Math.floor(this.b_timeLeft / 60);
+      this.b_sec = this.b_timeLeft - this.b_min * 60;
+      this.b_timer = this.b_min + ":" + this.b_sec.toString().concat('0');
+      if (this.b_sec < 10) {
+        this.b_timer = this.b_min + ":" + this.b_sec.toString().padStart(2, '0');
+      } else {
+        this.b_timer = this.b_min + ":" + this.b_sec;
+      }
+    })
+
+
     /*
-        this.socket.on("start_w_timer", () => {
-          this.w_startTimer();
-        })
-    
         this.socket.on("change", () => {
           this.w_pauseTimer();
           this.b_startTimer();
@@ -431,6 +471,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
     */
     this.socket.on("draw", () => {
       this.isDraw = true;
+      this.socket.emit("clear_interval", sessionStorage.getItem("room"));
       this.socket.close();
     })
 

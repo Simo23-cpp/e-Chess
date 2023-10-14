@@ -1,6 +1,6 @@
 # e-Chess
 
-e-Chess è una piattaforma web che permette di giocare online a scacchi contro altri giocatori. <br>
+e-Chess è una piattaforma web che permette di giocare online a scacchi contro altri giocatori tramite la creazione di stanze. Ogni utente potrà creare una stanza gioco o entrare in una stanza già esistente per partecipare o assistere alla partita in tempo reale<br>
 Gli utenti devono registarsi per poter giocare, ad ogni utente sarà assegnato un punteggio che aumenterà in base al numero di vittorie.
 
 Per la realizzazione del progetto sono state utilizzate le seguenti tecnologie:
