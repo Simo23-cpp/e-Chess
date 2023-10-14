@@ -244,29 +244,55 @@ io.on("connection", (socket) => {
         clearInterval(stanza.interval);
         if (user == stanza.black.player_username || user == stanza.white.player_username) {
             io.sockets.in("room-" + stanza.room_name).emit("abbandono", user);
-            io.sockets.in("room-" + stanza.room_name).emit("setFinish", true);
+
             if (user == stanza.black.player_username) {
-                if (stanza.black.player_score >= 10) {
-                    stanza.black.player_score -= 10;
-                    let score = parseInt(stanza.white.player_score) + 10;
-                    await models.findOneAndUpdate({ username: stanza.black.player_username }, { score: stanza.black.player_score });
-                    await models.findOneAndUpdate({ username: stanza.white.player_username }, { score: score });
-                    io.sockets.in("room-" + stanza.room_name).emit("abbandono", user);
-                    io.sockets.in("room-" + stanza.room_name).emit("setFinish", true);
+                let punteggi = getScore(stanza.black.player_score, stanza.white.player_score);
+                let score;
+                if (parseInt(stanza.black.player_score) > parseInt(stanza.white.player_score)) {
+                    stanza.black.player_score -= parseInt(punteggi[0]);
+                    console.log("black > white")
+                    score = parseInt(stanza.white.player_score) + parseInt(punteggi[0]);
+                    io.sockets.in("room-" + stanza.room_name).emit("send_p", punteggi[0]);
                 }
+                else {
+                    console.log("black > white else")
+
+                    stanza.black.player_score -= parseInt(punteggi[1]);
+                    score = parseInt(stanza.white.player_score) + parseInt(punteggi[1]);
+                    io.sockets.in("room-" + stanza.room_name).emit("send_p", punteggi[1]);
+                }
+
+                if (stanza.black.player_score < 0) {
+                    stanza.black.player_score = 0;
+                }
+                io.sockets.in("room-" + stanza.room_name).emit("setFinish", true);
+                await models.findOneAndUpdate({ username: stanza.black.player_username }, { score: stanza.black.player_score });
+                await models.findOneAndUpdate({ username: stanza.white.player_username }, { score: score });
             }
             else if (user == stanza.white.player_username) {
-                if (stanza.white.player_score >= 10) {
-                    stanza.white.player_score -= 10;
-                    let score = parseInt(stanza.black.player_score) + 10;
-                    await models.findOneAndUpdate({ username: stanza.white.player_username }, { score: stanza.white.player_score });
-                    await models.findOneAndUpdate({ username: stanza.black.player_username }, { score: score });
-                    io.sockets.in("room-" + stanza.room_name).emit("abbandono", user);
-                    io.sockets.in("room-" + stanza.room_name).emit("setFinish", true);
+                let punteggi = getScore(stanza.black.player_score, stanza.white.player_score);
+                let score;
+                if (parseInt(stanza.white.player_score) > parseInt(stanza.black.player_score)) {
+                    console.log("white > black")
+
+                    stanza.white.player_score -= parseInt(punteggi[0]);
+                    score = parseInt(stanza.black.player_score) + parseInt(punteggi[0]);
+                    io.sockets.in("room-" + stanza.room_name).emit("send_p", punteggi[0]);
                 }
+                else {
+                    console.log("white > black else")
+
+                    stanza.white.player_score -= parseInt(punteggi[1]);
+                    score = parseInt(stanza.black.player_score) + parseInt(punteggi[1]);
+                    io.sockets.in("room-" + stanza.room_name).emit("send_p", punteggi[1]);
+                }
+                if (stanza.white.player_score < 0) {
+                    stanza.white.player_score = 0;
+                }
+                io.sockets.in("room-" + stanza.room_name).emit("setFinish", true);
+                await models.findOneAndUpdate({ username: stanza.white.player_username }, { score: stanza.white.player_score });
+                await models.findOneAndUpdate({ username: stanza.black.player_username }, { score: score });
             }
-
-
         }
     })
 
@@ -348,46 +374,23 @@ io.on("connection", (socket) => {
 
 });
 
-//function for timer
+function getScore(score1, score2) {
+    const c = Math.floor(Math.abs(score1 - score2) / 10);
+    var arr_result = [];
+    if (c < 10) {
+        let c1 = 10 + Math.floor(Math.random() * 10);
+        let c2 = 20 - Math.floor(Math.random() * 10);
 
-function w_startTimer() {
-    interval = setInterval(() => {
-        if (this.w_timeLeft > 0) {
-            this.w_timeLeft--;
-        } else {
-            this.socket.emit("exit", this.playerWhite, sessionStorage.getItem("room"));
-        }
-    }, 1600)
+        arr_result.push(Math.max(c1, c2));
+        arr_result.push(Math.min(c1, c2));
+        console.log(arr_result);
+    }
+    else {
+        arr_result.push(20);
+        arr_result.push(10);
+    }
+    return arr_result;
 }
-
-function w_pauseTimer() {
-    clearInterval(this.interval);
-}
-
-function b_startTimer() {
-    this.interval = setInterval(() => {
-        if (this.b_timeLeft > 0) {
-            this.b_timeLeft--;
-            this.b_min = Math.floor(this.b_timeLeft / 60);
-            this.b_sec = this.b_timeLeft - this.b_min * 60;
-            if (this.b_sec < 10) {
-                this.b_timer = this.b_min + ":" + this.b_sec.toString().padStart(2, '0');
-            } else {
-                this.b_timer = this.b_min + ":" + this.b_sec;
-            }
-
-
-        } else {
-            this.socket.emit("exit", this.playerBlack, sessionStorage.getItem("room"));
-        }
-    }, 1600)
-}
-
-function b_pauseTimer() {
-    clearInterval(this.interval);
-}
-
-
 
 httpServer.listen(global.SOCKET_IO_PORT, () => {
     console.log("ws server listen on port 3000");

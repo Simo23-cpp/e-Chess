@@ -50,8 +50,8 @@ export class GamePageComponent implements OnInit, OnDestroy {
   b_score: any;
 
   //var of victory modal setup
-  victory: string = "+10";
-  lose: string = "-10";
+  victory: string = "";
+  lose: string = "";
   winner: any
 
   //array for chat
@@ -455,6 +455,12 @@ export class GamePageComponent implements OnInit, OnDestroy {
       } else {
         this.b_timer = this.b_min + ":" + this.b_sec;
       }
+    })
+
+    this.socket.on("send_p", (punteggio) => {
+      console.log(punteggio)
+      this.victory = "+" + punteggio.toString();
+      this.lose = "-" + punteggio.toString();
     })
 
 
