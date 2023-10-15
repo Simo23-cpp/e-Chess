@@ -63,19 +63,7 @@ export class SignupPageComponent implements OnInit {
               console.log(res);
             }
           })
-
-
-
       }
-
-
     })
-
-
-
-
-
-
-    //
   }
 }

@@ -51,8 +51,6 @@ export class HomePageComponent implements OnInit, OnDestroy {
   }
 
   play(name: string, time: number) {
-    console.log(name);
-    console.log(time);
     sessionStorage.setItem("room", name);
     sessionStorage.setItem("time", time.toString());
     this.router.navigate(["/game"]);
@@ -95,20 +93,15 @@ export class HomePageComponent implements OnInit, OnDestroy {
   connectWebSocket() {
 
     this.socket.on("connected", () => {
-      console.log("connesso alla web socket");
-      // this.socket.emit("sendUsername", sessionStorage.getItem("username"), sessionStorage.getItem("score"));
       this.socket.emit("Send_rooms");
     });
 
-
     this.socket.on("send_arr", (arr: any) => {
       this.Arr_rooms = arr;
-      console.log(this.Arr_rooms)
       let isLogged = false;
       this.Arr_rooms.forEach((item) => {
         isLogged = item.players.some((elem) => elem.player_username == sessionStorage.getItem('username'))
       })
-      console.log(isLogged);
       if (isLogged) {
         this.socket.close();
         this.router.navigate(["/login"]);

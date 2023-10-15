@@ -143,7 +143,6 @@ io.on("connection", (socket) => {
         stanza.room_players++;
         stanza.player_arr.push(player);
         socket.join("room-" + name);
-        io.sockets.in("room-" + name).emit("connect_room", name);
 
         //function to set random black and white players
         if (stanza.room_players == 2) {
@@ -293,7 +292,7 @@ io.on("connection", (socket) => {
                 let winner = stanza.game.exportJson().turn;
                 io.sockets.in("room-" + stanza.room_name).emit("setWinner", winner);
             }
-        }, 1400)
+        }, 1200)
     })
 
     //handler for start the timer of black
@@ -307,7 +306,7 @@ io.on("connection", (socket) => {
                 let winner = stanza.game.exportJson().turn;
                 io.sockets.in("room-" + stanza.room_name).emit("setWinner", winner);
             }
-        }, 1400)
+        }, 1200)
     })
 
     //function for stop the timer
